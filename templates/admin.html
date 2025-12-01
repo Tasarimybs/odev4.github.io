@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Yönetici Paneli</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+    <div class="max-w-2xl mx-auto py-8">
+        <h1 class="text-2xl font-bold mb-6">Yönetici Paneli</h1>
+        <form method="post" action="/admin/urun-ekle" class="mb-8 p-4 bg-white rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-2">Yeni Ürün Ekle</h2>
+            <div class="mb-2"><input type="text" name="name" placeholder="Ürün Adı" class="form-input w-full" required></div>
+            <div class="mb-2"><input type="text" name="description" placeholder="Açıklama" class="form-input w-full" required></div>
+            <div class="mb-2"><input type="number" name="price" placeholder="Fiyat" class="form-input w-full" required></div>
+            <div class="mb-2"><input type="text" name="image" placeholder="Resim URL" class="form-input w-full"></div>
+            <div class="mb-2">
+                <select name="category_id" class="form-select w-full" required>
+                    {% for kategori in kategoriler %}
+                    <option value="{{ kategori.id }}">{{ kategori.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Ekle</button>
+        </form>
+        <h2 class="text-lg font-semibold mb-2">Ürünler</h2>
+        <table class="w-full bg-white rounded-lg shadow">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-2">Ad</th>
+                    <th class="p-2">Açıklama</th>
+                    <th class="p-2">Fiyat</th>
+                    <th class="p-2">Kategori</th>
+                    <th class="p-2">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for urun in urunler %}
+                <tr>
+                    <td class="p-2">{{ urun.name }}</td>
+                    <td class="p-2">{{ urun.description }}</td>
+                    <td class="p-2">{{ urun.price }}</td>
+                    <td class="p-2">{{ urun.category.name if urun.category else '' }}</td>
+                    <td class="p-2">
+                        <form method="post" action="/admin/urun-guncelle" style="display:inline-flex; gap:4px; align-items:center;">
+                            <input type="hidden" name="urun_id" value="{{ urun.id }}">
+                            <input type="number" name="price" value="{{ urun.price }}" class="form-input w-20" min="0" step="1" required>
+                            <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded">Güncelle</button>
+                        </form>
+                        <form method="post" action="/admin/urun-sil" style="display:inline-flex;">
+                            <input type="hidden" name="urun_id" value="{{ urun.id }}">
+                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

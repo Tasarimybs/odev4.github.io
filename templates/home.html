@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Elektronik Mağazası Ana Sayfası</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#135bec",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+<div class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-gray-900 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold tracking-tight">Elektronik Mağazası</h2>
+</div>
+<nav class="hidden lg:flex items-center gap-9">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/">Ana Sayfa</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/hakkimizda">Hakkımızda</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/iletisim">İletişim</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/sepet">Sepet</a>
+</nav>
+</div>
+<div class="flex items-center justify-end gap-4">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-gray-100 dark:bg-white/5">
+<div class="text-gray-400 dark:text-gray-500 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm font-normal" placeholder="Search" value=""/>
+</div>
+</label>
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+<span class="material-symbols-outlined text-xl">person</span>
+</button>
+<a href="/sepet" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+<span class="material-symbols-outlined text-xl">shopping_cart</span>
+<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">{{ sepet_urun_sayisi }}</span>
+</a>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8 sm:py-12">
+<div class="flex min-h-[480px] flex-col gap-8 rounded-xl items-start justify-end px-6 pb-10 sm:px-10 bg-center bg-cover" data-alt="A modern smartphone displayed on a colorful, abstract background" style='background-image: linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA3S_-aQUu8ygPbgZ_HkfsZRsQWb5-QL_8IQYCi1DWu_dVzsInSMugSAE_loFxwQTDlZNzbuv7RB8rxbi4J_-AjUbIgieKRGQkOso_HDzFY7OdnQgt7s0_sEq8rC_bPSTHpJBwARXAxET20V8NHI6o9I4OzRv-Nx8-dG3LLvcX5YE2NY_kCg6BREsrTHJ4xKee-84fF_UxvhtfYGJCaFtAe4FINjjV-yzZq28J_FN7dEelQe3IWXxIJd3ptwm9wRxzKFe3b7sOiDik");'>
+<div class="flex flex-col gap-4 text-left max-w-xl">
+<h1 class="text-white text-4xl font-black leading-tight tracking-tighter sm:text-5xl">
+  En Yeni Akıllı Telefonlar Şimdi Stokta!
+</h1>
+<h2 class="text-white/90 text-base font-normal leading-normal sm:text-lg">
+  Yaza özel indirimleri ve en son teknoloji ürünlerini kaçırmayın.
+</h2>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
+<span class="truncate">İncele</span>
+</button>
+</div>
+<div class="mt-12 sm:mt-16">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+{% set urun_gorselleri = {
+  'Akıllı Telefon X1 Pro': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcVVcweYe_-8dWr4Ju4pIKIclz_KwZ_74gLJh3-pJ92s_6_OX9CFKygd_6Qp6tH9YKqNTKGHJCl5OpeWmfg5s051NpjWDGXPivfSSn1FWB-f1rpzMKy0ausUpmQkGyBhd9NI1g6M_5iX2bGUJ-vgFwQo1GJb_YXTmQNWNf4WaFxBRMXAdagb6bWMiTTBUb7nH6iALM_K3jSei5-Vqd-5crRk36WbJbUqJ9N684pf_ECHhs-6ijH3smvcCY4hw13tywp4LqQ6FvLMg',
+  'Kablosuz Kulaklık': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBWhGoPB2kQvonnPa-mcp1oMJVJ1MhyOnE0L0_678iewpWfv5eMEDO1FHfGNk1lRWaBEOoVVC6X18poNbvk2FRggQ59Jih_hNNHrYvHXtL44BXKWm_FuAUU89bqfbVzV2PEzhkZs-1hcmedArWSC98W198xOxXg06rvjK_WeHzDvOPkMj1uJUyojRey6AcGkyR82k2umUxW9CbHtk_axAXUPEl1oMv7hZpDid6dzKPQ9wo-HnTk2rQDOUAAJLgG9QKGbz9sSU0UpJc',
+  'Tablet 10"': 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtUkdOMdTn2avl33rU5SHYT6htpVcbTbm3uOdA1Q0hFn6hV2vn03g0ZkpiI2wBB0GM_QpBvMV6AmCQ2UFZ4MtieSG1sQx8VYtGBQbbPGVHoo9wkENpzLQOj5QJXZdo-tV6RAdaxGfP8dwx1PGiiXwykW6W2lKBj5_nWa6ngX5Urcv6lL0tKqtQFEUkPHpY9bJ8v6X3jQdcSaNtkb0fePzH1qDEQk8N9bq9CEIIUgkhcrMMslMOUIwsU6ctSKFNHgKOed0chU9yDc4',
+  '4K Smart TV 55"': 'https://lh3.googleusercontent.com/aida-public/AB6AXuBQGTyHhe7xUl-5-S3yrBjLbQgM1OOTe-bOoIjq4qluTT5rsHTpQBOCd_WOFsOFMImGRd_IurN-TS2Ugms-ZF8OlZP5jyKMVJ1px2cTdvj6BNA7whBtvTD4bjWLl8lAsCc_GpWpMovcwU7BZGRYqm3hUd6mKjVLbFaBxJHGITVp1-FvACd_35QG-ECy1Otz8pQVHOm8DixfU4bBWJ7PZ0cVzd9DBkW5iJ9mceb51Ci0fXrV1h4eJ28dJIDwlxiFKj6Tlxi_rK38X8E',
+  'Ultra Laptop M3': 'https://lh3.googleusercontent.com/aida-public/AB6AXuAq8UX7BTFPNdpVSWYUP2GgEQVktgLvB6XdxoDTpE9gm7l2zhYlYk9zkpKzo1NN-r6vdtXc6tpss9HtEHPorTsG6aJwp_2XoK7mgMpLrnrNMolh_iR5A86fMpUB96bZuVDN8XMDN4yMW8mCBIuBg05KQK-gb_sxrV2KcW7dxHcZ1QZm6qTHFTAnesKNIhHOwKupAVim_7IR5LDgLZjjHIAXLiFqNgcUjTd8PQyaGyHKqaVARGo7e8_bmv4hGIpeUQfq5iFDJmL4M0I',
+  'Akıllı Saat Series 8': 'https://lh3.googleusercontent.com/aida-public/AB6AXuCNkURSLEVHrYxZkBzFczfXHSzLlf5ulYfq6ee8OEwAI3pT69lTjNQOxQDzHNsnEzl7f9QQaO4qHBI9OwGPU9vBBUPFmmNdkVsRCB1-thLAz-r_4fVm3vWMjBro1eAB0TZcwLzad4foaQh_96UZI2nh-xaXD1SLIu6TyK2Bn7FSE2dv5lLBDZIT0AmWAEIVktSYa3T0TFihmAuIqvXzkFa4I7UzddTBBH7lJNsIFfs-FroY9XZ6PcMAKyCIEXFjmiTAOkt1T005YWo'
+} %}
+{% for urun in urunler %}
+<div class="group relative flex flex-col rounded-xl overflow-hidden bg-white dark:bg-gray-900/50 shadow-md transition-shadow hover:shadow-xl">
+  <a class="block" href="#">
+    <div class="aspect-[4/3] bg-gray-100 dark:bg-gray-800/50 flex items-center justify-center">
+      {% set img_url = urun_gorselleri.get(urun.ad) if urun_gorselleri.get(urun.ad) else urun.img %}
+      <img src="{{ img_url if img_url else 'https://via.placeholder.com/300x225?text=G%C3%B6rsel+Yok' }}" alt="{{ urun.ad }}" class="w-full h-full object-contain" loading="lazy" />
+    </div>
+  </a>
+  <div class="p-6 flex-1 flex flex-col">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ urun.name }}</h3>
+    <p class="text-2xl font-black text-primary mt-2">{{ urun.price }} TL</p>
+    <form method="post" action="/sepete-ekle">
+      <input type="hidden" name="urun_id" value="{{ urun.id }}" />
+      <button class="mt-4 w-full flex items-center justify-center gap-2 rounded-lg h-11 px-5 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary/90 transition-colors" type="submit">
+        <span class="material-symbols-outlined">add_shopping_cart</span>
+        <span class="truncate">Sepete Ekle</span>
+      </button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-gray-900/50 mt-16 border-t border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div>
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Kurumsal</h3>
+<ul class="mt-4 space-y-4">
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="/hakkimizda">Hakkımızda</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Kariyer</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="/iletisim">İletişim</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Yardım</h3>
+<ul class="mt-4 space-y-4">
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Sıkça Sorulan Sorular</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Kargo ve Teslimat</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">İade Politikası</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-2">
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Bültene Abone Ol</h3>
+<p class="mt-4 text-base text-gray-600 dark:text-gray-300">En son fırsatlar ve kampanyalardan ilk siz haberdar olun.</p>
+<form class="mt-4 sm:flex sm:max-w-md">
+<input autocomplete="email" class="appearance-none min-w-0 w-full bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-4 text-base text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary" id="email-address" name="email" placeholder="E-posta adresinizi girin" required="" type="email"/>
+<div class="mt-3 rounded-md sm:mt-0 sm:ml-3 sm:flex-shrink-0">
+<button class="w-full bg-primary flex items-center justify-center rounded-md py-2 px-4 text-base font-medium text-white hover:bg-primary/90 focus:outline-none" type="submit">Abone Ol</button>
+</div>
+</form>
+</div>
+</div>
+<div class="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex items-center justify-between">
+<p class="text-base text-gray-400 dark:text-gray-500">© 2024 Elektronik Mağazası. Tüm hakları saklıdır.</p>
+<div class="flex space-x-6">
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

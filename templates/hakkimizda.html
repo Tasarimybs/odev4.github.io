@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hakkımızda Sayfası</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+                .material-symbols-outlined {
+                        font-variation-settings:
+                        'FILL' 0,
+                        'wght' 400,
+                        'GRAD' 0,
+                        'opsz' 24
+                }
+        </style>
+<script id="tailwind-config">
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            "primary": "#135bec",
+                            "background-light": "#f6f6f8",
+                            "background-dark": "#101622",
+                        },
+                        fontFamily: {
+                            "display": ["Inter", "sans-serif"]
+                        },
+                        borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                    },
+                },
+            }
+        </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+<div class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-gray-900 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold tracking-tight">Elektronik Mağazası</h2>
+</div>
+<nav class="hidden lg:flex items-center gap-9">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/">Ana Sayfa</a>
+<a class="text-sm font-bold text-primary transition-colors" href="/hakkimizda">Hakkımızda</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/iletisim">İletişim</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/sepet">Sepet</a>
+</nav>
+</div>
+<div class="flex items-center justify-end gap-4">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-gray-100 dark:bg-white/5">
+<div class="text-gray-400 dark:text-gray-500 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm font-normal" placeholder="Search" value=""/>
+</div>
+</label>
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+<span class="material-symbols-outlined text-xl">person</span>
+</button>
+<a href="/sepet" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+<span class="material-symbols-outlined text-xl">shopping_cart</span>
+<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">{{ sepet_urun_sayisi }}</span>
+</a>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<div class="bg-white dark:bg-gray-900/50">
+<div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 sm:py-24">
+<div class="text-center">
+<p class="text-base font-semibold text-primary">Hakkımızda</p>
+<h1 class="mt-2 text-4xl font-black tracking-tight text-gray-900 dark:text-white sm:text-5xl">Teknoloji Tutkusuyla Güven İnşa Ediyoruz</h1>
+<p class="mt-6 max-w-3xl mx-auto text-lg leading-8 text-gray-600 dark:text-gray-300">Kurulduğumuz günden bu yana, en yeni teknolojileri tutkuyla takip ediyor ve müşterilerimizle buluşturuyoruz. Misyonumuz, en kaliteli elektronik ürünleri erişilebilir fiyatlarla sunmak ve alışverişin her aşamasında güvenilir bir ortak olmaktır. Vizyonumuz, teknolojinin hayatı kolaylaştıran gücünü herkes için bir standart haline getirmektir. Müşteri odaklılık, yenilikçilik ve şeffaflık temel değerlerimizdir.</p>
+</div>
+</div>
+</div>
+<div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-16 sm:py-24">
+<div class="max-w-4xl mx-auto">
+<h2 class="text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Neden Bize Güvenmelisiniz?</h2>
+<div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="flex items-center justify-center h-12 w-12 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Orijinal Ürün Garantisi</h3>
+<p class="mt-2 text-base text-gray-600 dark:text-gray-400">Sattığımız tüm ürünler %100 orijinal olup, yetkili distribütör garantisi altındadır.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="flex items-center justify-center h-12 w-12 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">lock</span>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Güvenli Alışveriş</h3>
+<p class="mt-2 text-base text-gray-600 dark:text-gray-400">En güncel SSL sertifikaları ve güvenlik protokolleri ile kişisel verileriniz her zaman koruma altındadır.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="flex items-center justify-center h-12 w-12 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">support_agent</span>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Satış Sonrası Destek</h3>
+<p class="mt-2 text-base text-gray-600 dark:text-gray-400">Uzman ekibimiz, satın alımınızdan sonra da her türlü sorunuz için yanınızdadır.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="flex items-center justify-center h-12 w-12 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">local_shipping</span>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Hızlı ve Sigortalı Kargo</h3>
+<p class="mt-2 text-base text-gray-600 dark:text-gray-400">Siparişleriniz özenle paketlenir ve en kısa sürede, sigortalı olarak kapınıza teslim edilir.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-white dark:bg-gray-900/50 mt-16 border-t border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div>
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Kurumsal</h3>
+<ul class="mt-4 space-y-4">
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="/hakkimizda">Hakkımızda</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Kariyer</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="/iletisim">İletişim</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Yardım</h3>
+<ul class="mt-4 space-y-4">
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Sıkça Sorulan Sorular</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Kargo ve Teslimat</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">İade Politikası</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-2">
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Bültene Abone Ol</h3>
+<p class="mt-4 text-base text-gray-600 dark:text-gray-300">En son fırsatlar ve kampanyalardan ilk siz haberdar olun.</p>
+<form class="mt-4 sm:flex sm:max-w-md">
+<input autocomplete="email" class="appearance-none min-w-0 w-full bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-4 text-base text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary" id="email-address" name="email" placeholder="E-posta adresinizi girin" required="" type="email"/>
+<div class="mt-3 rounded-md sm:mt-0 sm:ml-3 sm:flex-shrink-0">
+<button class="w-full bg-primary flex items-center justify-center rounded-md py-2 px-4 text-base font-medium text-white hover:bg-primary/90 focus:outline-none" type="submit">Abone Ol</button>
+</div>
+</form>
+</div>
+</div>
+<div class="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex items-center justify-between">
+<p class="text-base text-gray-400 dark:text-gray-500">© 2024 Elektronik Mağazası. Tüm hakları saklıdır.</p>
+<div class="flex space-x-6">
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

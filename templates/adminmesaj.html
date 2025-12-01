@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Mesajlar</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-montserrat">
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">İletişim Mesajları</h1>
+        <a href="/admin" class="mb-4 inline-block text-blue-600 hover:underline">← Admin Paneline Dön</a>
+        <div class="bg-white shadow rounded-lg p-6">
+            <table class="min-w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="px-4 py-2">Ad Soyad</th>
+                        <th class="px-4 py-2">E-posta</th>
+                        <th class="px-4 py-2">Mesaj</th>
+                        <th class="px-4 py-2">Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr class="border-b">
+                        <td class="px-4 py-2">{{ msg.name }}</td>
+                        <td class="px-4 py-2">{{ msg.email }}</td>
+                        <td class="px-4 py-2">{{ msg.message }}</td>
+                        <td class="px-4 py-2">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-gray-500">Hiç mesaj yok.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
