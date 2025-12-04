@@ -281,11 +281,50 @@ def create_tables_and_seed():
         db.session.commit()
 
     if not Product.query.first():
-        p1 = Product(name='Akıllı Telefon X1', description='...', price=24999, image='url', category_id=1)
-        p2 = Product(name='Pro Kulaklık', description='...', price=4799, image='url', category_id=2)
-        p3 = Product(name='Ultra Laptop M2', description='...', price=38500, image='url', category_id=3)
-        p4 = Product(name='4K Smart TV', description='...', price=19899, image='url', category_id=4)
-        db.session.add_all([p1, p2, p3, p4])
+        # Daha detaylı açıklamalar ve birkaç ek ürün ekleyelim
+        p1 = Product(
+            name='Akıllı Telefon X1',
+            description='6.5" OLED ekran, 120 Hz yenileme hızı; 50MP ana kamera; 4500 mAh batarya; 8GB RAM, 128GB depolama; 65W hızlı şarj. Suya dayanıklı (IP68).',
+            price=24999,
+            image='https://via.placeholder.com/400x300?text=Ak%C4%B1ll%C4%B1+Telefon+X1',
+            category_id=1
+        )
+        p2 = Product(
+            name='Pro Kulaklık',
+            description='Aktif gürültü engelleme (ANC), 40 saat pil ömrü, Bluetooth 5.2, hızlı eşleşme. Yumuşak kulak pedleri ile uzun kullanım rahatlığı.',
+            price=4799,
+            image='https://via.placeholder.com/400x300?text=Pro+Kulakl%C4%B1k',
+            category_id=2
+        )
+        p3 = Product(
+            name='Ultra Laptop M2',
+            description='14" Full HD IPS ekran, Intel i7 işlemci, 16GB RAM, 512GB NVMe SSD, ince alüminyum kasa, 10 saate kadar pil süresi. İş ve üretkenlik için ideal.',
+            price=38500,
+            image='https://via.placeholder.com/400x300?text=Ultra+Laptop+M2',
+            category_id=3
+        )
+        p4 = Product(
+            name='4K Smart TV',
+            description='55" 4K UHD panel, HDR10+, akıllı platform, dahili Wi-Fi, çoklu HDMI/USB girişleri. Sinema deneyimi için net görüntü ve geniş renk skalası.',
+            price=19899,
+            image='https://via.placeholder.com/400x300?text=4K+Smart+TV',
+            category_id=4
+        )
+        p5 = Product(
+            name='Kablosuz Mouse Ergo',
+            description='Ergonomik sağ el tasarımı, 16000 DPI sensör, Bluetooth ve 2.4GHz alıcı ile çift mod bağlantı, 12 aya kadar pil ömrü.',
+            price=499,
+            image='https://via.placeholder.com/400x300?text=Ergo+Mouse',
+            category_id=2
+        )
+        p6 = Product(
+            name='Akıllı Saat FitPro',
+            description='Kalp atış hızı ölçer, uyku takibi, su geçirmezlik, 7 güne kadar pil, spor modları ve bildirim desteği.',
+            price=5999,
+            image='https://via.placeholder.com/400x300?text=FitPro+Saat',
+            category_id=2
+        )
+        db.session.add_all([p1, p2, p3, p4, p5, p6])
         db.session.commit()
 
         if not AboutPage.query.first():
@@ -398,10 +437,21 @@ def home():
 def sepet():
     db_urunler = Product.query.filter(Product.id.in_(get_sepet())).all()
     sepet_urunler = to_template_products(db_urunler)
+
+    # Benzer ürünleri seç: önce sepetteki ilk ürünün kategorisine göre
+    sepet_ids = [p.id for p in db_urunler]
+    similar_query = []
+    if db_urunler:
+        first_cat = db_urunler[0].category_id
+        similar_query = Product.query.filter(Product.category_id == first_cat, ~Product.id.in_(sepet_ids)).limit(4).all()
+    else:
+        similar_query = Product.query.filter(~Product.id.in_(sepet_ids)).limit(4).all()
+    similar_products = to_template_products(similar_query)
+
     # Fiyatları float'a çevirerek topla
     toplam_fiyat = sum(float(u.fiyat) for u in sepet_urunler)
     sepet_urun_sayisi = len(get_sepet())
-    return render_template('sepet.html', sepet_urunler=sepet_urunler, toplam_fiyat=toplam_fiyat, sepet_urun_sayisi=sepet_urun_sayisi)
+    return render_template('sepet.html', sepet_urunler=sepet_urunler, toplam_fiyat=toplam_fiyat, sepet_urun_sayisi=sepet_urun_sayisi, similar_products=similar_products)
 
 @app.route('/sepete-ekle', methods=['POST'])
 def sepete_ekle():
