@@ -131,6 +131,26 @@
 <button class="w-full mt-6 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
 <span class="truncate">Ödemeye Geç</span>
 </button>
+                {% if similar_products %}
+                <div class="mt-6">
+                  <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-3 mb-3">Benzer Ürünler</h3>
+                  <div class="space-y-3">
+                    {% for urun in similar_products %}
+                    <div class="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800">
+                      <div class="w-16 h-12 bg-center bg-contain bg-no-repeat rounded" style="background-image: url('{{ urun.img }}');"></div>
+                      <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ urun.ad }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-300">{{ urun.fiyat }} TL</div>
+                      </div>
+                      <form method="post" action="/sepete-ekle">
+                        <input type="hidden" name="urun_id" value="{{ urun.id }}" />
+                        <button type="submit" class="text-sm px-3 py-1 bg-primary text-white rounded">Ekle</button>
+                      </form>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                {% endif %}
 </div>
 </div>
 </div>
