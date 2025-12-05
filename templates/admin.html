@@ -24,6 +24,61 @@
             </div>
             <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Ekle</button>
         </form>
+        <form method="post" action="/admin/kampanya-ekle" class="mb-8 p-4 bg-white rounded-lg shadow">
+            <h2 class="text-lg font-semibold mb-2">Yeni Kampanya Ekle</h2>
+            <div class="mb-2"><input type="text" name="title" placeholder="Kampanya Başlığı" class="form-input w-full" required></div>
+            <div class="mb-2"><input type="text" name="subtitle" placeholder="Alt başlık / kısa açıklama" class="form-input w-full"></div>
+            <div class="mb-2"><input type="text" name="discount_text" placeholder="İndirim metni (örn. %15)" class="form-input w-full"></div>
+            <div class="mb-2"><input type="text" name="image" placeholder="Banner resim URL" class="form-input w-full"></div>
+            <div class="mb-2 grid grid-cols-2 gap-2">
+                <input type="datetime-local" name="starts_at" class="form-input w-full" />
+                <input type="datetime-local" name="ends_at" class="form-input w-full" />
+            </div>
+            <div class="mb-2 grid grid-cols-3 gap-2">
+                <input type="number" name="percent_discount" placeholder="Yüzde indirim (örn. 15)" class="form-input w-full" min="0" max="100" />
+                <input type="number" name="min_cart_total" placeholder="Sepet eşik (TL)" class="form-input w-full" min="0" />
+                <label class="flex items-center gap-2"><input type="checkbox" name="free_shipping" /> Ücretsiz Kargo</label>
+            </div>
+            <div class="mb-2">
+                <label class="text-sm font-medium">İlgili Ürünler (opsiyonel)</label>
+                <select name="product_ids" multiple class="form-select w-full h-28 mt-1">
+                    {% for u in urunler %}
+                    <option value="{{ u.id }}">{{ u.name }} — {{ u.price }} TL</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Kampanya Ekle</button>
+        </form>
+
+        <h2 class="text-lg font-semibold mb-2">Kampanyalar</h2>
+        <table class="w-full bg-white rounded-lg shadow mb-8">
+            <thead>
+                <tr class="bg-gray-100">
+                    <th class="p-2">Başlık</th>
+                    <th class="p-2">Alt Başlık</th>
+                    <th class="p-2">İndirim</th>
+                    <th class="p-2">Bitiş</th>
+                    <th class="p-2">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k in kampanyalar %}
+                <tr>
+                    <td class="p-2">{{ k.title }}</td>
+                    <td class="p-2">{{ k.subtitle }}</td>
+                    <td class="p-2">{{ k.discount_text }}</td>
+                    <td class="p-2">{{ k.ends_at.strftime('%Y-%m-%d %H:%M') if k.ends_at else '' }}</td>
+                    <td class="p-2">
+                        <a href="/admin/kampanya-duzenle/{{ k.id }}" class="bg-blue-500 text-white px-2 py-1 rounded">Düzenle</a>
+                        <form method="post" action="/admin/kampanya-sil" style="display:inline-flex; margin-left:6px;">
+                            <input type="hidden" name="kamp_id" value="{{ k.id }}">
+                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
         <h2 class="text-lg font-semibold mb-2">Ürünler</h2>
         <table class="w-full bg-white rounded-lg shadow">
             <thead>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Kampanyalar - Elektronik Mağazası</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <style>
+    .countdown { font-weight: 700; }
+  </style>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <header class="mb-8">
+      <h1 class="text-3xl font-extrabold">Kampanyalar</h1>
+      <p class="text-gray-600 mt-1">En yeni fırsatlar, zaman sınırlı indirimler ve özel kampanyalar burada.</p>
+    </header>
+
+    <!-- Banner with countdown -->
+    <section class="relative rounded-xl overflow-hidden bg-cover bg-center mb-8" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)), url('https://via.placeholder.com/1400x420?text=Kampanyalar+Banner');">
+      <div class="p-8 text-white">
+        <h2 class="text-4xl font-extrabold">Şimdi Kaçırılmayacak Fırsatlar</h2>
+        <p class="mt-2 text-lg">Geri sayım başladı — fırsatlar sınırlı süre için geçerli.</p>
+        <div class="mt-4 flex items-center gap-6">
+          <div class="countdown text-2xl" id="banner-countdown" data-ends="{{ kampanyalar[0].ends_at if kampanyalar else '' }}">Yükleniyor...</div>
+          <a href="#kampanya-listesi" class="inline-block bg-primary text-white px-4 py-2 rounded-lg">Kampanyaları Gör</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters (UI only) -->
+    <div class="mb-6 flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">Kategori:</label>
+        <select class="form-select rounded-md border-gray-300">
+          <option>Tümü</option>
+          <option>Elektronik</option>
+          <option>Moda</option>
+          <option>Kozmetik</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-sm text-gray-600">Bitiş Süresine Göre:</label>
+        <select class="form-select rounded-md border-gray-300">
+          <option>En Yakın</option>
+          <option>En Uzak</option>
+        </select>
+      </div>
+      <div class="ml-auto">
+        <a href="/admin" class="text-sm text-primary">Admin: Kampanya ekle</a>
+      </div>
+    </div>
+
+    <!-- Campaign cards -->
+    <section id="kampanya-listesi" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for k in kampanyalar %}
+      <div class="bg-white rounded-lg shadow p-4 flex flex-col">
+        <div class="aspect-[16/9] bg-gray-100 rounded overflow-hidden">
+          <img src="{{ k.image }}" alt="{{ k.title }}" class="w-full h-full object-cover"/>
+        </div>
+        <div class="mt-4 flex-1">
+          <h3 class="text-xl font-bold">{{ k.title }}</h3>
+          <p class="text-sm text-gray-600 mt-1">{{ k.subtitle }}</p>
+        </div>
+        <div class="mt-4 flex items-center justify-between">
+          <div class="text-sm text-gray-500">Bitiş: <span class="font-medium">{{ k.ends_at.replace('T',' ') }}</span></div>
+          <div class="text-right">
+            <div class="text-sm text-gray-600">Kalan süre</div>
+            <div class="text-primary font-bold" data-ends="{{ k.ends_at }}">--:--:--</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <a href="#" class="w-full inline-block text-center bg-primary text-white py-2 rounded">Detayları Gör</a>
+        </div>
+      </div>
+      {% endfor %}
+    </section>
+
+    <script>
+      // Countdown helper: finds elements with data-ends and updates remaining time
+      function startCountdown(el, endsAt) {
+        function update(){
+          var now = new Date().getTime();
+          var target = new Date(endsAt).getTime();
+          var diff = target - now;
+          if(diff<=0){ el.textContent = 'Sona Erdi'; return }
+          var days = Math.floor(diff / (1000*60*60*24));
+          var hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+          var mins = Math.floor((diff % (1000*60*60)) / (1000*60));
+          var secs = Math.floor((diff % (1000*60)) / 1000);
+          var out = (days>0? days+'g ':'') + String(hours).padStart(2,'0')+':'+String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0');
+          el.textContent = out;
+        }
+        update();
+        setInterval(update,1000);
+      }
+
+      // initialize all countdowns
+      document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('[data-ends]').forEach(function(node){
+          var ends = node.getAttribute('data-ends');
+          if(ends) startCountdown(node, ends);
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

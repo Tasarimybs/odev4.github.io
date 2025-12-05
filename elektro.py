@@ -1,7 +1,7 @@
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 import os
@@ -265,6 +265,29 @@ class ContactInfo(db.Model):
     phone = db.Column(db.String(30))
     address = db.Column(db.String(200))
 
+# Many-to-many association table between campaigns and products
+campaign_products = db.Table(
+    'campaign_products',
+    db.Column('campaign_id', db.Integer, db.ForeignKey('campaign.id')),
+    db.Column('product_id', db.Integer, db.ForeignKey('product.id'))
+)
+
+
+class Campaign(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    subtitle = db.Column(db.String(400))
+    image = db.Column(db.String(400))
+    discount_text = db.Column(db.String(100))
+    # structured fields for automatic discounts
+    percent_discount = db.Column(db.Integer, nullable=True)  # percent (e.g. 15)
+    min_cart_total = db.Column(db.Integer, nullable=True)     # TL threshold for cart-based campaigns
+    free_shipping = db.Column(db.Boolean, default=False)
+    starts_at = db.Column(db.DateTime, nullable=True)
+    ends_at = db.Column(db.DateTime, nullable=True)
+    active = db.Column(db.Boolean, default=True)
+    products = db.relationship('Product', secondary=campaign_products, backref=db.backref('campaigns', lazy='dynamic'))
+
 
 # -----------------------------
 # VERİTABANINI OLUŞTUR + SEED
@@ -327,6 +350,23 @@ def create_tables_and_seed():
         db.session.add_all([p1, p2, p3, p4, p5, p6])
         db.session.commit()
 
+    # Örnek kampanya verisi
+    if not Campaign.query.first():
+        from datetime import datetime, timedelta
+        now = datetime.utcnow()
+        # product-associated campaign (we'll attach products after products are created)
+        c1 = Campaign(title='24 Saatlik Şok İndirimler', subtitle='Seçili ürünlerde ekstra %20', image='https://via.placeholder.com/800x400?text=24+Saat+%C5%9Eok+%C4%B0ndirim', discount_text='%20', percent_discount=20, starts_at=now, ends_at=now+timedelta(days=1))
+        c2 = Campaign(title='Hafta Sonu Fırsatları', subtitle='Hafta sonuna özel fırsatlar', image='https://via.placeholder.com/800x400?text=Hafta+Sonu+F%C4%B1rsat', discount_text='%10', percent_discount=10, starts_at=now, ends_at=now+timedelta(days=3))
+        # cart-based campaign: min cart total 1500 -> 15% off
+        c3 = Campaign(title='Sepet Bazlı %15 İndirim', subtitle='1500 TL ve üzeri alışverişlerde %15 indirim', image='https://via.placeholder.com/800x400?text=Sepet+%C4%B0ndirimi', discount_text='%15', percent_discount=15, min_cart_total=1500, starts_at=now, ends_at=now+timedelta(days=7))
+        db.session.add_all([c1, c2, c3])
+        db.session.commit()
+        # attach first two products to c1 for demo if products exist
+        products = Product.query.limit(3).all()
+        if products:
+            c1.products.extend(products)
+            db.session.commit()
+
         if not AboutPage.query.first():
             db.session.add(AboutPage(title='Hakkımızda', content='Elektronik mağazamız en yeni teknolojileri sunar.'))
             db.session.commit()
@@ -351,7 +391,8 @@ from flask import flash
 def admin_panel():
     urunler = Product.query.all()
     kategoriler = Category.query.all()
-    return render_template('admin.html', urunler=urunler, kategoriler=kategoriler)
+    kampanyalar = Campaign.query.order_by(Campaign.ends_at.asc()).all()
+    return render_template('admin.html', urunler=urunler, kategoriler=kategoriler, kampanyalar=kampanyalar)
 
 @app.route('/admin/messages', methods=['GET'])
 def admin_messages():
@@ -392,6 +433,86 @@ def admin_urun_guncelle():
         flash('Ürün fiyatı güncellendi.')
     return redirect(url_for('admin_panel'))
 
+
+@app.route('/admin/kampanya-ekle', methods=['POST'])
+def admin_kampanya_ekle():
+    title = request.form.get('title')
+    subtitle = request.form.get('subtitle')
+    image = request.form.get('image')
+    discount_text = request.form.get('discount_text')
+    starts_at = request.form.get('starts_at')
+    ends_at = request.form.get('ends_at')
+    from datetime import datetime
+    percent = request.form.get('percent_discount')
+    min_cart = request.form.get('min_cart_total')
+    free_ship = True if request.form.get('free_shipping')=='on' else False
+    sa = datetime.fromisoformat(starts_at) if starts_at else None
+    ea = datetime.fromisoformat(ends_at) if ends_at else None
+    pct = int(percent) if percent else None
+    mct = int(min_cart) if min_cart else None
+    kamp = Campaign(title=title, subtitle=subtitle, image=image, discount_text=discount_text, percent_discount=pct, min_cart_total=mct, free_shipping=free_ship, starts_at=sa, ends_at=ea)
+    # attach selected products
+    product_ids = request.form.getlist('product_ids')
+    if product_ids:
+        prods = Product.query.filter(Product.id.in_(product_ids)).all()
+        kamp.products.extend(prods)
+    db.session.add(kamp)
+    db.session.commit()
+    flash('Kampanya eklendi.')
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/kampanya-sil', methods=['POST'])
+def admin_kampanya_sil():
+    kamp_id = request.form.get('kamp_id')
+    kamp = Campaign.query.get(kamp_id)
+    if kamp:
+        db.session.delete(kamp)
+        db.session.commit()
+        flash('Kampanya silindi.')
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/kampanya-guncelle', methods=['POST'])
+def admin_kampanya_guncelle():
+    kamp_id = request.form.get('kamp_id')
+    kamp = Campaign.query.get(kamp_id)
+    if not kamp:
+        flash('Kampanya bulunamadı.')
+        return redirect(url_for('admin_panel'))
+    kamp.title = request.form.get('title') or kamp.title
+    kamp.subtitle = request.form.get('subtitle') or kamp.subtitle
+    kamp.discount_text = request.form.get('discount_text') or kamp.discount_text
+    kamp.image = request.form.get('image') or kamp.image
+    from datetime import datetime
+    starts_at = request.form.get('starts_at')
+    ends_at = request.form.get('ends_at')
+    kamp.starts_at = datetime.fromisoformat(starts_at) if starts_at else kamp.starts_at
+    kamp.ends_at = datetime.fromisoformat(ends_at) if ends_at else kamp.ends_at
+    percent = request.form.get('percent_discount')
+    min_cart = request.form.get('min_cart_total')
+    kamp.percent_discount = int(percent) if percent else kamp.percent_discount
+    kamp.min_cart_total = int(min_cart) if min_cart else kamp.min_cart_total
+    kamp.free_shipping = True if request.form.get('free_shipping')=='on' else False
+    # update products if provided
+    product_ids = request.form.getlist('product_ids')
+    if product_ids:
+        kamp.products = Product.query.filter(Product.id.in_(product_ids)).all()
+    db.session.commit()
+    flash('Kampanya güncellendi.')
+    return redirect(url_for('admin_panel'))
+
+
+@app.route('/admin/kampanya-duzenle/<int:kamp_id>', methods=['GET', 'POST'])
+def admin_kampanya_duzenle(kamp_id):
+    kamp = Campaign.query.get_or_404(kamp_id)
+    urunler = Product.query.all()
+    if request.method == 'POST':
+        # reuse update logic
+        return admin_kampanya_guncelle()
+    # render a simple edit page
+    return render_template('admin_kampanya_duzenle.html', kamp=kamp, urunler=urunler)
+
 @app.route('/hakkimizda')
 def hakkimizda():
     about = AboutPage.query.first()
@@ -409,6 +530,27 @@ def iletisim():
             db.session.commit()
             return redirect(url_for('iletisim'))
     return render_template('iletisim.html', contact=contact)
+
+
+@app.route('/kampanyalar')
+def kampanyalar():
+    sepet_urun_sayisi = len(get_sepet())
+    db_urunler = Product.query.limit(12).all()
+    # fetch active campaigns from DB
+    from datetime import datetime
+    now = datetime.utcnow()
+    kampanyalar = Campaign.query.filter(Campaign.active==True).order_by(Campaign.ends_at.asc()).all()
+    # prepare simple dicts for template compatibility (ends_at as iso)
+    kamp_data = []
+    for k in kampanyalar:
+        kamp_data.append({
+            'id': k.id,
+            'title': k.title,
+            'subtitle': k.subtitle,
+            'image': k.image or 'https://via.placeholder.com/800x450?text=Kampanya',
+            'ends_at': k.ends_at.isoformat() if k.ends_at else ''
+        })
+    return render_template('kampanyalar.html', kampanyalar=kamp_data, urunler=db_urunler, sepet_urun_sayisi=sepet_urun_sayisi)
 
 Urun = namedtuple('Urun', ['id', 'ad', 'aciklama', 'fiyat', 'img'])
 Kategori = namedtuple('Kategori', ['ad', 'img'])
@@ -448,10 +590,51 @@ def sepet():
         similar_query = Product.query.filter(~Product.id.in_(sepet_ids)).limit(4).all()
     similar_products = to_template_products(similar_query)
 
-    # Fiyatları float'a çevirerek topla
-    toplam_fiyat = sum(float(u.fiyat) for u in sepet_urunler)
+    # Hesaplama: ara toplam
+    subtotal = sum([p.price for p in db_urunler])
+    now = datetime.utcnow()
+    # Bulunabilecek kampanyalar
+    applicable = []
+    for kamp in Campaign.query.filter(Campaign.active==True).all():
+        # tarih aralığı kontrolü
+        if kamp.starts_at and kamp.starts_at > now:
+            continue
+        if kamp.ends_at and kamp.ends_at < now:
+            continue
+        applies = False
+        # sepet toplam eşiği
+        if kamp.min_cart_total and subtotal >= kamp.min_cart_total:
+            applies = True
+        # ürün bazlı kampanya: sepette ilgili ürün varsa
+        if kamp.products:
+            kamp_prod_ids = [p.id for p in kamp.products]
+            if any(pid in kamp_prod_ids for pid in sepet_ids):
+                applies = True
+        if applies and (kamp.percent_discount or kamp.free_shipping):
+            applicable.append(kamp)
+
+    # hesapla en iyi (en yüksek) indirim tutarı
+    best_discount_amount = 0
+    best_campaign = None
+    for k in applicable:
+        disc = 0
+        if k.percent_discount:
+            disc = subtotal * (k.percent_discount / 100.0)
+        if disc > best_discount_amount:
+            best_discount_amount = disc
+            best_campaign = k
+
+    toplam_fiyat = subtotal
+    if best_discount_amount>0:
+        toplam_fiyat = subtotal - round(best_discount_amount, 2)
+
     sepet_urun_sayisi = len(get_sepet())
-    return render_template('sepet.html', sepet_urunler=sepet_urunler, toplam_fiyat=toplam_fiyat, sepet_urun_sayisi=sepet_urun_sayisi, similar_products=similar_products)
+    applied_info = {
+        'campaign': best_campaign.title if best_campaign else None,
+        'discount_amount': round(best_discount_amount,2)
+    }
+
+    return render_template('sepet.html', sepet_urunler=sepet_urunler, toplam_fiyat=toplam_fiyat, sepet_urun_sayisi=sepet_urun_sayisi, similar_products=similar_products, subtotal=subtotal, applied_info=applied_info)
 
 @app.route('/sepete-ekle', methods=['POST'])
 def sepete_ekle():

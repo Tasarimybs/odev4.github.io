@@ -10,13 +10,17 @@ Bu proje, Flask ve SQLAlchemy kullanılarak geliştirilmiş bir elektronik mağa
 - Yönetici paneli: Ürün ekleme, silme, fiyat güncelleme, mesajları görme
 
 ## Kurulum
-1. Gerekli paketleri yükleyin:
-   ```bash
-   pip install flask flask_sqlalchemy
+1. PowerShell kullanıyorsanız hızlı kurulum (önerilir):
+   ```powershell
+   .\run.ps1
    ```
-2. Uygulamayı başlatın:
-   ```bash
-   python elektro.py
+
+2. Elle kurulum yapmak isterseniz:
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+   python .\elektro.py
    ```
 3. Tarayıcıda açın:
    - Ana sayfa: http://127.0.0.1:5000/

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kampanya Düzenle</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-background-light font-display text-gray-800">
+<div class="max-w-2xl mx-auto py-8">
+    <h1 class="text-2xl font-bold mb-6">Kampanya Düzenle</h1>
+    <form method="post" action="/admin/kampanya-guncelle" class="mb-8 p-4 bg-white rounded-lg shadow">
+        <input type="hidden" name="kamp_id" value="{{ kamp.id }}" />
+        <div class="mb-2"><input type="text" name="title" placeholder="Kampanya Başlığı" value="{{ kamp.title }}" class="form-input w-full" required></div>
+        <div class="mb-2"><input type="text" name="subtitle" placeholder="Alt başlık / kısa açıklama" value="{{ kamp.subtitle }}" class="form-input w-full"></div>
+        <div class="mb-2"><input type="text" name="discount_text" placeholder="İndirim metni (örn. %15)" value="{{ kamp.discount_text }}" class="form-input w-full"></div>
+        <div class="mb-2"><input type="text" name="image" placeholder="Banner resim URL" value="{{ kamp.image }}" class="form-input w-full"></div>
+        <div class="mb-2 grid grid-cols-2 gap-2">
+            <input type="datetime-local" name="starts_at" class="form-input w-full" value="{{ kamp.starts_at.isoformat()[:16] if kamp.starts_at else '' }}" />
+            <input type="datetime-local" name="ends_at" class="form-input w-full" value="{{ kamp.ends_at.isoformat()[:16] if kamp.ends_at else '' }}" />
+        </div>
+        <div class="mb-2 grid grid-cols-3 gap-2">
+            <input type="number" name="percent_discount" placeholder="Yüzde indirim (örn. 15)" class="form-input w-full" min="0" max="100" value="{{ kamp.percent_discount or '' }}" />
+            <input type="number" name="min_cart_total" placeholder="Sepet eşik (TL)" class="form-input w-full" min="0" value="{{ kamp.min_cart_total or '' }}" />
+            <label class="flex items-center gap-2"><input type="checkbox" name="free_shipping" {% if kamp.free_shipping %}checked{% endif %} /> Ücretsiz Kargo</label>
+        </div>
+        <div class="mb-2">
+            <label class="text-sm font-medium">İlgili Ürünler (opsiyonel)</label>
+            <select name="product_ids" multiple class="form-select w-full h-28 mt-1">
+                {% for u in urunler %}
+                <option value="{{ u.id }}" {% if u in kamp.products %}selected{% endif %}>{{ u.name }} — {{ u.price }} TL</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-2">
+            <label class="flex items-center gap-2"><input type="checkbox" name="active" {% if kamp.active %}checked{% endif %} /> Aktif</label>
+        </div>
+        <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Güncelle</button>
+    </form>
+    <a href="/admin" class="text-sm text-primary">Yönetici paneline dön</a>
+</div>
+</body>
+</html>

@@ -113,20 +113,26 @@
 <div class="bg-white dark:bg-gray-900/50 rounded-lg shadow-sm p-6">
 <h2 class="text-xl font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-800 pb-4 mb-4">Sipariş Özeti</h2>
 <div class="space-y-3">
-<div class="flex justify-between text-base text-gray-600 dark:text-gray-300">
-<span>Ara Toplam</span>
-<span>{{ toplam_fiyat }} TL</span>
-</div>
-<div class="flex justify-between text-base text-gray-600 dark:text-gray-300">
-<span>Kargo</span>
-<span>Ücretsiz</span>
-</div>
+  <div class="flex justify-between text-base text-gray-600 dark:text-gray-300">
+    <span>Ara Toplam</span>
+    <span>{{ subtotal }} TL</span>
+  </div>
+  {% if applied_info.campaign %}
+  <div class="flex justify-between text-base text-green-600 dark:text-green-400">
+    <span>Uygulanan Kampanya: {{ applied_info.campaign }}</span>
+    <span>-{{ applied_info.discount_amount }} TL</span>
+  </div>
+  {% endif %}
+  <div class="flex justify-between text-base text-gray-600 dark:text-gray-300">
+    <span>Kargo</span>
+    <span>Ücretsiz</span>
+  </div>
 </div>
 <div class="border-t border-gray-200 dark:border-gray-800 mt-4 pt-4">
-<div class="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
-<span>Toplam</span>
-<span>{{ toplam_fiyat }} TL</span>
-</div>
+  <div class="flex justify-between text-lg font-bold text-gray-900 dark:text-white">
+    <span>Toplam</span>
+    <span>{{ toplam_fiyat }} TL</span>
+  </div>
 </div>
 <button class="w-full mt-6 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
 <span class="truncate">Ödemeye Geç</span>
