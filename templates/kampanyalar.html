@@ -1,82 +1,240 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Kampanyalar - Elektronik Mağazası</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <style>
-    .countdown { font-weight: 700; }
-  </style>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kampanyalar | TechStore</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2332", 
+                        "surface-light": "#ffffff"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
 </head>
-<body class="bg-background-light font-display text-gray-800">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <header class="mb-8">
-      <h1 class="text-3xl font-extrabold">Kampanyalar</h1>
-      <p class="text-gray-600 mt-1">En yeni fırsatlar, zaman sınırlı indirimler ve özel kampanyalar burada.</p>
-    </header>
+<body class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white overflow-x-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6e8eb] dark:border-b-[#232f48] px-4 lg:px-10 py-3 bg-surface-light dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-[#111418] dark:text-white">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">TechStore</h2>
+</div>
+<div class="hidden lg:flex items-center gap-9">
+<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/">Ana Sayfa</a>
+<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/hakkimizda">Hakkımızda</a>
+<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/iletisim">İletişim</a>
+<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/sepet">Sepet</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-4 lg:gap-8">
+<label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full group focus-within:ring-2 ring-primary transition-all">
+<div class="text-[#637588] dark:text-[#92a4c9] flex border-none bg-[#f0f2f4] dark:bg-[#232f48] items-center justify-center pl-4 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f2f4] dark:bg-[#232f48] focus:border-none h-full placeholder:text-[#637588] dark:placeholder:text-[#92a4c9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Ürün ara..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<a href="/sepet" class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+</a>
+<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white hover:bg-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center py-6 px-4 md:px-10 lg:px-40">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 w-full gap-8">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 px-4">
+<a class="text-[#637588] dark:text-[#92a4c9] text-sm font-medium leading-normal hover:underline" href="/">Ana Sayfa</a>
+<span class="text-[#637588] dark:text-[#92a4c9] text-sm font-medium leading-normal">/</span>
+<span class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Kampanyalar</span>
+</div>
+<!-- Heading -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 px-4">
+<!-- Başlık ve açıklama kaldırıldı -->
+<div class="flex gap-2">
+<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-none rounded-lg text-sm font-medium text-[#111418] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-[#2f3d5b] transition-colors">
+<span class="material-symbols-outlined text-[18px]">sort</span>
+                        Sırala
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 rounded-lg text-sm font-medium text-white shadow-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filtrele
+                    </button>
+</div>
+</div>
+<!-- Chips / Filters -->
+<div class="w-full overflow-x-auto pb-2 px-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+<div class="flex gap-3 min-w-max">
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-primary pl-4 pr-4 border border-transparent transition-all">
+<p class="text-white text-sm font-medium leading-normal">Tümü</p>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Bilgisayar</p>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Telefon &amp; Tablet</p>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">TV &amp; Ses</p>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Ev Aletleri</p>
+</button>
+<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
+<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Oyun Konsolları</p>
+</button>
+</div>
+</div>
+<!-- Banner with countdown -->
+<div class="px-4">
+<div class="relative w-full rounded-2xl overflow-hidden bg-[#1a2332] group cursor-pointer shadow-lg border border-transparent dark:border-[#232f48]">
+<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
+<div class="w-full h-[320px] md:h-[400px] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Futuristic laptop glowing with neon blue and purple lights in a dark room" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtz1fVc6UO0ofhKh4XKNQuzoFtqKujmdhmYg5uNB9v_SB8c49rNA5byIG_1no9GNgqT7WjNpYQFNmo8aECtV-_692fEiWMwSfhSS8fXknl3VteV-MYqiKNc-DqDkaKa82o6vX68MD5EeJeyKTFSz-git_e-q9CSORrFwPFkFEBGo9NmQNj9O11I-JoVrEjyFl5H9LT382B4XiTXYqAeh_KUBYWI6BdoTMyBkBhmacrVntCnFbea3n4O-tQzzMCyyh8NyMuc3n5z3w');"></div>
+<div class="absolute inset-0 z-20 flex flex-col justify-center p-8 md:p-12 items-start max-w-2xl">
+<span class="px-3 py-1 rounded bg-primary text-white text-xs font-bold uppercase tracking-wider mb-4">Ayın Fırsatı</span>
+<h2 class="text-white text-4xl md:text-5xl font-black leading-tight mb-4">Okula Dönüşte <br/>Dev İndirimler</h2>
+<p class="text-gray-200 text-lg mb-8 max-w-md">Seçili laptop modellerinde %40'a varan indirimler ve öğrenci özel ek %10 sepet indirimi.</p>
+<div class="flex gap-4">
+<button class="px-6 py-3 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
+                                İncele
+                                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<div class="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-3 rounded-lg border border-white/20">
+<span class="material-symbols-outlined text-white">timer</span>
+<span class="text-white font-mono font-bold" id="countdown-timer">12:04:55</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Campaigns Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+{% for k in kampanyalar %}
+<div class="flex flex-col rounded-xl overflow-hidden bg-white dark:bg-[#1a2332] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#e6e8eb] dark:border-[#232f48] group">
+<div class="relative w-full h-56 overflow-hidden">
+<div class="absolute top-3 left-3 z-10 bg-[#ef4444] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">%25 İNDİRİM</div>
+<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-110" style="background-image: url('{{ k.image }}');"></div>
+</div>
+<div class="flex flex-col flex-1 p-5 gap-3">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-[#111418] dark:text-white text-xl font-bold leading-tight mb-1">{{ k.title }}</h3>
+<p class="text-[#637588] dark:text-[#92a4c9] text-sm font-normal">{{ k.subtitle }}</p>
+</div>
+</div>
+<div class="w-full h-px bg-[#e6e8eb] dark:bg-[#232f48] my-1"></div>
+<div class="flex justify-between items-center mt-auto">
+<div class="flex items-center gap-1.5 text-[#637588] dark:text-[#92a4c9]">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+<span class="text-xs font-medium">Bitiş: {{ k.ends_at.replace('T',' ') }}</span>
+</div>
+<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white text-sm font-bold hover:bg-primary hover:text-white transition-colors">
+                                Keşfet
+                            </button>
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+</main>
+<script>
+// Countdown timer for the campaign banner
+function startCountdown(duration, display) {
+  let timer = duration, hours, minutes, seconds;
+  setInterval(function () {
+    hours = Math.floor(timer / 3600);
+    minutes = Math.floor((timer % 3600) / 60);
+    seconds = timer % 60;
 
-    <!-- Banner with countdown -->
-    <section class="relative rounded-xl overflow-hidden bg-cover bg-center mb-8" style="background-image:linear-gradient(rgba(0,0,0,0.25),rgba(0,0,0,0.25)), url('https://via.placeholder.com/1400x420?text=Kampanyalar+Banner');">
-      <div class="p-8 text-white">
-        <h2 class="text-4xl font-extrabold">Şimdi Kaçırılmayacak Fırsatlar</h2>
-        <p class="mt-2 text-lg">Geri sayım başladı — fırsatlar sınırlı süre için geçerli.</p>
-        <div class="mt-4 flex items-center gap-6">
-          <div class="countdown text-2xl" id="banner-countdown" data-ends="{{ kampanyalar[0].ends_at if kampanyalar else '' }}">Yükleniyor...</div>
-          <a href="#kampanya-listesi" class="inline-block bg-primary text-white px-4 py-2 rounded-lg">Kampanyaları Gör</a>
-        </div>
-      </div>
-    </section>
+    hours = hours < 10 ? "0" + hours : hours;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
 
-    <!-- Filters (UI only) -->
-    <div class="mb-6 flex flex-wrap items-center gap-4">
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-600">Kategori:</label>
-        <select class="form-select rounded-md border-gray-300">
-          <option>Tümü</option>
-          <option>Elektronik</option>
-          <option>Moda</option>
-          <option>Kozmetik</option>
-        </select>
-      </div>
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-600">Bitiş Süresine Göre:</label>
-        <select class="form-select rounded-md border-gray-300">
-          <option>En Yakın</option>
-          <option>En Uzak</option>
-        </select>
-      </div>
-      <div class="ml-auto">
-        <a href="/admin" class="text-sm text-primary">Admin: Kampanya ekle</a>
-      </div>
-    </div>
+    display.textContent = hours + ":" + minutes + ":" + seconds;
 
-    <!-- Campaign cards -->
-    <section id="kampanya-listesi" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {% for k in kampanyalar %}
-      <div class="bg-white rounded-lg shadow p-4 flex flex-col">
-        <div class="aspect-[16/9] bg-gray-100 rounded overflow-hidden">
-          <img src="{{ k.image }}" alt="{{ k.title }}" class="w-full h-full object-cover"/>
-        </div>
-        <div class="mt-4 flex-1">
-          <h3 class="text-xl font-bold">{{ k.title }}</h3>
-          <p class="text-sm text-gray-600 mt-1">{{ k.subtitle }}</p>
-        </div>
-        <div class="mt-4 flex items-center justify-between">
-          <div class="text-sm text-gray-500">Bitiş: <span class="font-medium">{{ k.ends_at.replace('T',' ') }}</span></div>
-          <div class="text-right">
-            <div class="text-sm text-gray-600">Kalan süre</div>
-            <div class="text-primary font-bold" data-ends="{{ k.ends_at }}">--:--:--</div>
-          </div>
-        </div>
-        <div class="mt-4">
-          <a href="#" class="w-full inline-block text-center bg-primary text-white py-2 rounded">Detayları Gör</a>
-        </div>
-      </div>
-      {% endfor %}
-    </section>
+    if (--timer < 0) {
+      timer = 0;
+    }
+  }, 1000);
+}
 
-    <script>
+window.addEventListener('DOMContentLoaded', function () {
+  // 12:04:55 = 43495 seconds
+  var duration = 12 * 3600 + 4 * 60 + 55;
+  var display = document.getElementById('countdown-timer');
+  if (display) {
+    startCountdown(duration, display);
+  }
+});
+</script>
+<!-- Footer -->
+<footer class="bg-surface-light dark:bg-background-dark border-t border-[#e6e8eb] dark:border-[#232f48] py-12 px-4 lg:px-40">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+<div class="flex flex-col gap-4">
+<h4 class="text-[#111418] dark:text-white font-bold text-lg">TechStore</h4>
+<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
+<a class="hover:text-primary" href="/hakkimizda">Hakkımızda</a>
+<a class="hover:text-primary" href="#">Mağazalar</a>
+<a class="hover:text-primary" href="/iletisim">İletişim</a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-[#111418] dark:text-white font-bold text-lg">Kategoriler</h4>
+<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
+<a class="hover:text-primary" href="#">Bilgisayar</a>
+<a class="hover:text-primary" href="#">Telefon</a>
+<a class="hover:text-primary" href="#">Televizyon</a>
+<a class="hover:text-primary" href="#">Ev Aletleri</a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-[#111418] dark:text-white font-bold text-lg">Müşteri Hizmetleri</h4>
+<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
+<a class="hover:text-primary" href="#">Sipariş Takibi</a>
+<a class="hover:text-primary" href="#">İade ve Değişim</a>
+<a class="hover:text-primary" href="#">Sıkça Sorulan Sorular</a>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<h4 class="text-[#111418] dark:text-white font-bold text-lg">Bizi Takip Edin</h4>
+<div class="flex gap-4">
+<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">FB</span></a>
+<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">TW</span></a>
+<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">IG</span></a>
+</div>
+</div>
+</div>
+<div class="text-center text-[#637588] dark:text-[#92a4c9] text-sm pt-8 border-t border-[#e6e8eb] dark:border-[#232f48]">
+            © 2023 TechStore. Tüm hakları saklıdır.
+        </div>
+</footer>
+<script>
       // Countdown helper: finds elements with data-ends and updates remaining time
       function startCountdown(el, endsAt) {
         function update(){
@@ -94,7 +252,6 @@
         update();
         setInterval(update,1000);
       }
-
       // initialize all countdowns
       document.addEventListener('DOMContentLoaded', function(){
         document.querySelectorAll('[data-ends]').forEach(function(node){
@@ -103,6 +260,5 @@
         });
       });
     </script>
-  </div>
 </body>
 </html>
