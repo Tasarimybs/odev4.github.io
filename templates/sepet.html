@@ -88,15 +88,15 @@
 <div class="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
 {% for urun in sepet_urunler %}
 <div class="flex flex-col sm:flex-row items-start gap-4 py-6">
-<div class="w-full sm:w-24 h-24 flex-shrink-0 bg-gray-100 dark:bg-gray-900/50 rounded-lg">
-<div class="bg-center bg-contain bg-no-repeat w-full h-full" style="background-image: url('{{ urun.img }}');"></div>
+<div class="w-full sm:w-24 h-24 flex-shrink-0 bg-gray-100 dark:bg-gray-900/50 rounded-lg overflow-hidden">
+<img src="{{ urun.image if urun.image else 'https://via.placeholder.com/96' }}" alt="{{ urun.name }}" class="w-full h-full object-cover" />
 </div>
 <div class="flex-1 flex flex-col gap-1">
-<h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ urun.ad }}</h3>
-<p class="text-sm text-gray-500 dark:text-gray-400">{{ urun.aciklama }}</p>
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ urun.name }}</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">{{ urun.description }}</p>
 </div>
 <div class="flex flex-col items-end gap-4 ml-auto">
-<p class="text-lg font-bold text-gray-900 dark:text-white">{{ urun.fiyat }} TL</p>
+<p class="text-lg font-bold text-gray-900 dark:text-white">{{ urun.price }} TL</p>
 <form method="post" action="/sepetten-sil" style="display:inline;">
   <input type="hidden" name="urun_id" value="{{ urun.id }}" />
   <button class="p-2 text-gray-500 hover:text-red-500 dark:hover:text-red-500 transition-colors" type="submit">
@@ -143,10 +143,12 @@
                   <div class="space-y-3">
                     {% for urun in similar_products %}
                     <div class="flex items-center gap-3 p-2 rounded-md bg-gray-50 dark:bg-gray-800">
-                      <div class="w-16 h-12 bg-center bg-contain bg-no-repeat rounded" style="background-image: url('{{ urun.img }}');"></div>
+                      <div class="w-16 h-12 overflow-hidden rounded">
+                        <img src="{{ urun.image if urun.image else 'https://via.placeholder.com/64' }}" alt="{{ urun.name }}" class="w-full h-full object-cover" />
+                      </div>
                       <div class="flex-1">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ urun.ad }}</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-300">{{ urun.fiyat }} TL</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ urun.name }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-300">{{ urun.price }} TL</div>
                       </div>
                       <form method="post" action="/sepete-ekle">
                         <input type="hidden" name="urun_id" value="{{ urun.id }}" />

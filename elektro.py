@@ -119,11 +119,25 @@ def create_tables_and_seed():
 
     # İlk ürünler
     if not Product.query.first():
-        p1 = Product(name='Akıllı Telefon X1', description='OLED ekran...', price=24999, image='', category_id=1)
-        p2 = Product(name='Pro Kulaklık', description='ANC özellikli...', price=4799, image='', category_id=2)
-        p3 = Product(name='Ultra Laptop', description='Yüksek performans...', price=38500, image='', category_id=3)
-        p4 = Product(name='4K Smart TV', description='Gelişmiş görüntü...', price=19899, image='', category_id=4)
-        db.session.add_all([p1, p2, p3, p4])
+        # Telefon Serisi (X1, X2, X3, X4)
+        p1 = Product(name='Akıllı Telefon X1', description='6.7" OLED ekran, 128GB depolama, 5000mAh batarya, 50MP kamera', price=24999, image='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80', category_id=1)
+        p2 = Product(name='Akıllı Telefon X2 Pro', description='6.8" AMOLED ekran, 256GB depolama, 5500mAh batarya, 108MP kamera, 120Hz', price=34999, image='https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80', category_id=1)
+        p3 = Product(name='Akıllı Telefon X3 Ultra', description='6.9" Dynamic AMOLED ekran, 512GB depolama, 6000mAh batarya, 200MP kamera', price=44999, image='https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&q=80', category_id=1)
+        p4 = Product(name='Akıllı Telefon X4 Max', description='7.0" LTPO AMOLED ekran, 1TB depolama, 6500mAh batarya, AI destekli 200MP kamera', price=54999, image='https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&q=80', category_id=1)
+        
+        # Kulaklıklar
+        p5 = Product(name='Pro Kulaklık ANC', description='Aktif gürültü engelleme, 30 saat batarya, premium ses kalitesi', price=4799, image='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80', category_id=2)
+        p6 = Product(name='Gaming Kulaklık RGB', description='7.1 surround ses, RGB aydınlatma, rahat kulak yastıkları', price=3299, image='https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=800&q=80', category_id=2)
+        
+        # Laptop & Tabletler
+        p7 = Product(name='Ultra Laptop Pro', description='15.6" 4K ekran, Intel i9, 32GB RAM, RTX 4070, 1TB SSD', price=38500, image='https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80', category_id=3)
+        p8 = Product(name='Pro Tablet 12"', description='12.9" Retina ekran, M2 chip, 256GB, Apple Pencil desteği', price=28999, image='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=80', category_id=3)
+        
+        # Televizyonlar
+        p9 = Product(name='4K Smart TV 55"', description='55" QLED ekran, HDR10+, 120Hz, Smart TV özellikleri', price=19899, image='https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80', category_id=4)
+        p10 = Product(name='8K Smart TV 65"', description='65" Neo QLED ekran, 8K AI upscaling, Dolby Atmos', price=45999, image='https://images.unsplash.com/photo-1601944177325-f8867652837f?w=800&q=80', category_id=4)
+        
+        db.session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
         db.session.commit()
 
     # Kampanya
@@ -207,6 +221,22 @@ def iletisim():
                            sepet_urun_sayisi=len(get_sepet()))
 
 
+@app.route("/urun/<int:urun_id>")
+def urun_detay(urun_id):
+    urun = Product.query.get_or_404(urun_id)
+    
+    # Aynı kategoriden benzer ürünler
+    benzer_urunler = Product.query.filter(
+        Product.category_id == urun.category_id,
+        Product.id != urun_id
+    ).limit(4).all()
+    
+    return render_template("urun_detay.html",
+                           urun=urun,
+                           benzer_urunler=benzer_urunler,
+                           sepet_urun_sayisi=len(get_sepet()))
+
+
 # -------------------------------------------------------
 # SEPET (SESSION)
 # -------------------------------------------------------
@@ -259,16 +289,26 @@ def sepet():
             'discount_amount': int(best_discount)
         }
     else:
-        applied_info = None
+        applied_info = {}
+
+    # Benzer ürünler öner
+    similar_products = []
+    if db_items:
+        first_cat = db_items[0].category_id
+        similar_products = Product.query.filter(
+            Product.category_id == first_cat,
+            ~Product.id.in_(sepet_ids)
+        ).limit(3).all()
 
     return render_template(
         "sepet.html",
         sepet_urunler=db_items,
         subtotal=subtotal,
         indirim=best_discount,
-        toplam=toplam,
+        toplam_fiyat=int(toplam),
         sepet_urun_sayisi=len(ids),
-        applied_info=applied_info
+        applied_info=applied_info,
+        similar_products=similar_products
     )
 
 
@@ -279,8 +319,18 @@ def sepete_ekle():
 
     if pid not in sepet:
         sepet.append(pid)
+        urun = Product.query.get(pid)
+        if urun:
+            flash(f'{urun.name} sepetinize eklendi!', 'success')
+    else:
+        flash('Bu ürün zaten sepetinizde!', 'info')
 
     set_sepet(sepet)
+    
+    # Referrer'a göre yönlendirme
+    referrer = request.referrer
+    if referrer and '/urun/' in referrer:
+        return redirect(referrer)
     return redirect(url_for("home"))
 
 
@@ -480,11 +530,25 @@ def create_tables_and_seed():
 
     # Ürünler
     if not Product.query.first():
-        p1 = Product(name='Akıllı Telefon X1', description='OLED...', price=24999, image='', category_id=1)
-        p2 = Product(name='Pro Kulaklık', description='ANC...', price=4799, image='', category_id=2)
-        p3 = Product(name='Ultra Laptop', description='Laptop...', price=38500, image='', category_id=3)
-        p4 = Product(name='4K Smart TV', description='TV...', price=19899, image='', category_id=4)
-        db.session.add_all([p1, p2, p3, p4])
+        # Telefon Serisi (X1, X2, X3, X4)
+        p1 = Product(name='Akıllı Telefon X1', description='6.7" OLED ekran, 128GB depolama, 5000mAh batarya, 50MP kamera', price=24999, image='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80', category_id=1)
+        p2 = Product(name='Akıllı Telefon X2 Pro', description='6.8" AMOLED ekran, 256GB depolama, 5500mAh batarya, 108MP kamera, 120Hz', price=34999, image='https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80', category_id=1)
+        p3 = Product(name='Akıllı Telefon X3 Ultra', description='6.9" Dynamic AMOLED ekran, 512GB depolama, 6000mAh batarya, 200MP kamera', price=44999, image='https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&q=80', category_id=1)
+        p4 = Product(name='Akıllı Telefon X4 Max', description='7.0" LTPO AMOLED ekran, 1TB depolama, 6500mAh batarya, AI destekli 200MP kamera', price=54999, image='https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&q=80', category_id=1)
+        
+        # Kulaklıklar
+        p5 = Product(name='Pro Kulaklık ANC', description='Aktif gürültü engelleme, 30 saat batarya, premium ses kalitesi', price=4799, image='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80', category_id=2)
+        p6 = Product(name='Gaming Kulaklık RGB', description='7.1 surround ses, RGB aydınlatma, rahat kulak yastıkları', price=3299, image='https://images.unsplash.com/photo-1487215078519-e21cc028cb89?w=800&q=80', category_id=2)
+        
+        # Laptop & Tabletler
+        p7 = Product(name='Ultra Laptop Pro', description='15.6" 4K ekran, Intel i9, 32GB RAM, RTX 4070, 1TB SSD', price=38500, image='https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80', category_id=3)
+        p8 = Product(name='Pro Tablet 12"', description='12.9" Retina ekran, M2 chip, 256GB, Apple Pencil desteği', price=28999, image='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=80', category_id=3)
+        
+        # Televizyonlar
+        p9 = Product(name='4K Smart TV 55"', description='55" QLED ekran, HDR10+, 120Hz, Smart TV özellikleri', price=19899, image='https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80', category_id=4)
+        p10 = Product(name='8K Smart TV 65"', description='65" Neo QLED ekran, 8K AI upscaling, Dolby Atmos', price=45999, image='https://images.unsplash.com/photo-1601944177325-f8867652837f?w=800&q=80', category_id=4)
+        
+        db.session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
         db.session.commit()
 
     # Kampanyalar
