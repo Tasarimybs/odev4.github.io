@@ -1,264 +1,438 @@
 <!DOCTYPE html>
-<html class="dark" lang="tr"><head>
+<html class="dark" lang="tr">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Kampanyalar | TechStore</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "primary": "#135bec",
-                        "background-light": "#f6f6f8",
-                        "background-dark": "#101622",
-                        "surface-dark": "#1a2332", 
-                        "surface-light": "#ffffff"
-                    },
-                    fontFamily: {
-                        "display": ["Inter", "sans-serif"]
-                    },
-                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-                },
-            },
-        }
-    </script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#1e40af'
+      }
+    }
+  }
+}
+</script>
+<style>
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.campaign-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.campaign-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(19, 91, 236, 0.15);
+}
+
+.badge-discount {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+.timer-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(29,78,216,0.12));
+  border: 1px solid rgba(59,130,246,0.25);
+  box-shadow: 0 10px 25px rgba(59,130,246,0.08);
+  animation: pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.timer-box .countdown {
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+</style>
 </head>
-<body class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark font-display text-[#111418] dark:text-white overflow-x-hidden">
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+
 <!-- Header -->
-<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6e8eb] dark:border-b-[#232f48] px-4 lg:px-10 py-3 bg-surface-light dark:bg-background-dark sticky top-0 z-50">
+<header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 py-3">
 <div class="flex items-center gap-8">
-<div class="flex items-center gap-4 text-[#111418] dark:text-white">
-<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
-<span class="material-symbols-outlined">bolt</span>
+<div class="flex items-center gap-4 text-gray-900 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
+</svg>
 </div>
-<h2 class="text-[#111418] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">TechStore</h2>
+<h2 class="text-lg font-bold tracking-tight">TechStore</h2>
 </div>
-<div class="hidden lg:flex items-center gap-9">
-<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/">Ana Sayfa</a>
-<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/hakkimizda">Hakkımızda</a>
-<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/iletisim">İletişim</a>
-<a class="text-[#111418] dark:text-white text-sm font-medium leading-normal hover:text-primary transition-colors" href="/sepet">Sepet</a>
+<nav class="hidden lg:flex items-center gap-9">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/">Ana Sayfa</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/hakkimizda">Hakkımızda</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/iletisim">İletişim</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="/sepet">Sepet</a>
+</nav>
 </div>
-</div>
-<div class="flex flex-1 justify-end gap-4 lg:gap-8">
+<div class="flex items-center justify-end gap-4">
 <label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
-<div class="flex w-full flex-1 items-stretch rounded-lg h-full group focus-within:ring-2 ring-primary transition-all">
-<div class="text-[#637588] dark:text-[#92a4c9] flex border-none bg-[#f0f2f4] dark:bg-[#232f48] items-center justify-center pl-4 rounded-l-lg border-r-0">
-<span class="material-symbols-outlined text-[20px]">search</span>
+<form action="/ara" method="GET" class="flex w-full flex-1 items-stretch rounded-lg h-full bg-gray-100 dark:bg-white/5">
+<div class="text-gray-400 dark:text-gray-500 flex items-center justify-center pl-3">
+<span class="material-symbols-outlined text-xl">search</span>
 </div>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111418] dark:text-white focus:outline-0 focus:ring-0 border-none bg-[#f0f2f4] dark:bg-[#232f48] focus:border-none h-full placeholder:text-[#637588] dark:placeholder:text-[#92a4c9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Ürün ara..." value=""/>
-</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm font-normal" placeholder="Search" name="q" value=""/>
+</form>
 </label>
-<div class="flex gap-2">
-<a href="/sepet" class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white hover:bg-primary hover:text-white transition-colors">
-<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+{% if session.get('user_id') %}
+<div class="flex items-center gap-2">
+<span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">{{ session.get('user_name') }}</span>
+<a href="/profil" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20 dark:hover:bg-primary/30 gap-2 text-sm font-bold min-w-0 px-2.5 transition-colors">
+<span class="material-symbols-outlined text-xl">person</span>
 </a>
-<button class="flex items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white hover:bg-primary hover:text-white transition-colors">
-<span class="material-symbols-outlined text-[20px]">person</span>
-</button>
+</div>
+{% else %}
+<a href="/login" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">person</span>
+</a>
+{% endif %}
+<a href="/sepet" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">shopping_cart</span>
+<span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">{{ sepet_urun_sayisi }}</span>
+</a>
+</div>
 </div>
 </div>
 </header>
-<main class="flex-1 flex flex-col items-center py-6 px-4 md:px-10 lg:px-40">
-<div class="layout-content-container flex flex-col max-w-[1200px] flex-1 w-full gap-8">
-<!-- Breadcrumbs -->
-<div class="flex flex-wrap gap-2 px-4">
-<a class="text-[#637588] dark:text-[#92a4c9] text-sm font-medium leading-normal hover:underline" href="/">Ana Sayfa</a>
-<span class="text-[#637588] dark:text-[#92a4c9] text-sm font-medium leading-normal">/</span>
-<span class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Kampanyalar</span>
-</div>
-<!-- Heading -->
-<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 px-4">
-<!-- Başlık ve açıklama kaldırıldı -->
-<div class="flex gap-2">
-<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-none rounded-lg text-sm font-medium text-[#111418] dark:text-white shadow-sm hover:bg-gray-50 dark:hover:bg-[#2f3d5b] transition-colors">
-<span class="material-symbols-outlined text-[18px]">sort</span>
-                        Sırala
-                    </button>
-<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 rounded-lg text-sm font-medium text-white shadow-sm transition-colors">
-<span class="material-symbols-outlined text-[18px]">filter_list</span>
-                        Filtrele
-                    </button>
+
+<main class="flex-1">
+<!-- Breadcrumb & Title -->
+<div class="bg-gradient-to-b from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<nav class="flex items-center gap-2 mb-6 text-sm">
+<a href="/" class="text-gray-600 dark:text-gray-400 hover:text-blue-600">Ana Sayfa</a>
+<span class="text-gray-400">/</span>
+<span class="text-blue-600 font-medium">Kampanyalar</span>
+</nav>
+<div class="animate-slideInUp">
+<h1 class="text-4xl md:text-5xl font-bold mb-3">Kampanyalar</h1>
+<p class="text-lg text-gray-600 dark:text-gray-400">En iyi fırsatları kaçırmayın. Sınırlı süre için özel indirimler sizleri bekliyor.</p>
 </div>
 </div>
-<!-- Chips / Filters -->
-<div class="w-full overflow-x-auto pb-2 px-4 [-ms-scrollbar-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-<div class="flex gap-3 min-w-max">
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-primary pl-4 pr-4 border border-transparent transition-all">
-<p class="text-white text-sm font-medium leading-normal">Tümü</p>
-</button>
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
-<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Bilgisayar</p>
-</button>
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
-<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Telefon &amp; Tablet</p>
-</button>
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
-<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">TV &amp; Ses</p>
-</button>
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
-<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Ev Aletleri</p>
-</button>
-<button class="flex h-9 items-center justify-center gap-x-2 rounded-full bg-white dark:bg-[#232f48] border border-[#e6e8eb] dark:border-transparent pl-4 pr-4 hover:bg-gray-100 dark:hover:bg-[#2f3d5b] transition-all group">
-<p class="text-[#111418] dark:text-white text-sm font-medium leading-normal">Oyun Konsolları</p>
-</button>
 </div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+<!-- Featured Campaign Banner -->
+<div class="mb-16 animate-slideInUp stagger-1">
+<div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 h-64 md:h-80 flex items-center shadow-lg bg-cover bg-center" style="background-image: linear-gradient(rgba(37, 99, 235, 0.88), rgba(29, 78, 216, 0.92)), url('https://images.unsplash.com/photo-1593642532400-2682810df593?w=1200&q=80');">
+<div class="relative z-10 px-6 sm:px-10 md:px-16 text-white max-w-2xl">
+<div class="inline-block bg-white/20 backdrop-blur px-4 py-2 rounded-full mb-4">
+<span class="text-sm font-bold">🔥 AYININ FIRSATI</span>
 </div>
-<!-- Banner with countdown -->
-<div class="px-4">
-<div class="relative w-full rounded-2xl overflow-hidden bg-[#1a2332] group cursor-pointer shadow-lg border border-transparent dark:border-[#232f48]">
-<div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-10"></div>
-<div class="w-full h-[320px] md:h-[400px] bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="Futuristic laptop glowing with neon blue and purple lights in a dark room" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBtz1fVc6UO0ofhKh4XKNQuzoFtqKujmdhmYg5uNB9v_SB8c49rNA5byIG_1no9GNgqT7WjNpYQFNmo8aECtV-_692fEiWMwSfhSS8fXknl3VteV-MYqiKNc-DqDkaKa82o6vX68MD5EeJeyKTFSz-git_e-q9CSORrFwPFkFEBGo9NmQNj9O11I-JoVrEjyFl5H9LT382B4XiTXYqAeh_KUBYWI6BdoTMyBkBhmacrVntCnFbea3n4O-tQzzMCyyh8NyMuc3n5z3w');"></div>
-<div class="absolute inset-0 z-20 flex flex-col justify-center p-8 md:p-12 items-start max-w-2xl">
-<span class="px-3 py-1 rounded bg-primary text-white text-xs font-bold uppercase tracking-wider mb-4">Ayın Fırsatı</span>
-<h2 class="text-white text-4xl md:text-5xl font-black leading-tight mb-4">Okula Dönüşte <br/>Dev İndirimler</h2>
-<p class="text-gray-200 text-lg mb-8 max-w-md">Seçili laptop modellerinde %40'a varan indirimler ve öğrenci özel ek %10 sepet indirimi.</p>
-<div class="flex gap-4">
-<button class="px-6 py-3 bg-primary hover:bg-blue-600 text-white font-bold rounded-lg transition-colors flex items-center gap-2">
-                                İncele
-                                <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-</button>
-<div class="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-3 rounded-lg border border-white/20">
-<span class="material-symbols-outlined text-white">timer</span>
-<span class="text-white font-mono font-bold" id="countdown-timer">12:04:55</span>
+<h2 class="text-3xl md:text-4xl font-bold mb-3">Seçili Ürünlerde Mega İndirim</h2>
+<p class="text-white/90 mb-6 text-lg">Bilgisayar, telefon ve tablet kategorilerinde %40'a varan indirimler seni bekliyor!</p>
+<div class="flex gap-4 flex-wrap">
+<a href="/" class="inline-flex items-center gap-2 bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+Tüm Ürünleri Gör
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+<a href="/?q=telefon" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur text-white font-bold px-6 py-3 rounded-lg border border-white/30 hover:bg-white/30 transition-colors">
+Telefonları İncele
+</a>
 </div>
 </div>
 </div>
 </div>
-</div>
-<!-- Active Campaigns Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
-{% for k in kampanyalar %}
-<div class="flex flex-col rounded-xl overflow-hidden bg-white dark:bg-[#1a2332] shadow-sm hover:shadow-xl transition-all duration-300 border border-[#e6e8eb] dark:border-[#232f48] group">
-<div class="relative w-full h-56 overflow-hidden">
-<div class="absolute top-3 left-3 z-10 bg-[#ef4444] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">%25 İNDİRİM</div>
-<div class="w-full h-full bg-center bg-cover transition-transform duration-500 group-hover:scale-110" style="background-image: url('{{ k.image }}');"></div>
-</div>
-<div class="flex flex-col flex-1 p-5 gap-3">
-<div class="flex justify-between items-start">
+
+<!-- Active Campaigns -->
+<div class="mb-12">
+<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8">
 <div>
-<h3 class="text-[#111418] dark:text-white text-xl font-bold leading-tight mb-1">{{ k.title }}</h3>
-<p class="text-[#637588] dark:text-[#92a4c9] text-sm font-normal">{{ k.subtitle }}</p>
+<h3 class="text-2xl font-bold">Aktif Kampanyalar</h3>
+<p class="text-sm text-gray-600 dark:text-gray-400 mt-2">24 saatlik indirim sayaçlarını takip edin, süre dolmadan ürünü yakalayın.</p>
+</div>
+<a href="#telefon-urunleri" class="inline-flex items-center gap-2 text-blue-600 font-semibold hover:underline">
+<span class="material-symbols-outlined text-base">south</span>
+Telefon ürünlerine in</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+{% if kampanyalar %}
+{% for k in kampanyalar %}
+<div class="animate-fadeIn stagger-{{ loop.index }} campaign-card group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+<!-- Campaign Image -->
+<div class="relative h-48 overflow-hidden bg-gray-200 dark:bg-gray-700">
+<img src="{{ k.image or 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=600&q=80' }}" 
+alt="{{ k.title }}" 
+class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+{% if k.is_24h %}
+<div class="absolute top-4 left-4 bg-white/20 backdrop-blur text-white font-semibold px-3 py-1 rounded-full flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">bolt</span>
+<span>24 SAATLİK İNDİRİM</span>
+</div>
+{% endif %}
+{% if k.ends_at %}
+<div class="absolute bottom-3 left-3 bg-black/55 text-white px-3 py-2 rounded-lg flex items-center gap-2 backdrop-blur-sm">
+<span class="material-symbols-outlined text-sm">hourglass_top</span>
+<span class="countdown text-sm font-semibold" data-end="{{ k.ends_at }}">--:--:--</span>
+</div>
+{% endif %}
+<div class="absolute top-4 right-4 badge-discount rounded-full px-4 py-2 text-white font-bold text-lg shadow-lg">
+%{{ k.percent_discount or '25' }} OFF
 </div>
 </div>
-<div class="w-full h-px bg-[#e6e8eb] dark:bg-[#232f48] my-1"></div>
-<div class="flex justify-between items-center mt-auto">
-<div class="flex items-center gap-1.5 text-[#637588] dark:text-[#92a4c9]">
-<span class="material-symbols-outlined text-[18px]">calendar_month</span>
-<span class="text-xs font-medium">Bitiş: {{ k.ends_at.replace('T',' ') }}</span>
+
+<!-- Campaign Details -->
+<div class="p-6">
+<h4 class="text-xl font-bold mb-2">{{ k.title }}</h4>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-4">{{ k.subtitle }}</p>
+
+{% if k.ends_at %}
+<div class="timer-box mb-5">
+<div class="flex items-center gap-2 text-blue-800 dark:text-blue-100 text-sm font-semibold">
+<span class="material-symbols-outlined text-base">schedule</span>
+<span>Kalan Süre</span>
 </div>
-<button class="flex items-center justify-center rounded-lg h-9 px-4 bg-[#f0f2f4] dark:bg-[#232f48] text-[#111418] dark:text-white text-sm font-bold hover:bg-primary hover:text-white transition-colors">
-                                Keşfet
-                            </button>
+<span class="countdown text-lg text-blue-900 dark:text-white" data-end="{{ k.ends_at }}">--:--:--</span>
+</div>
+{% endif %}
+
+<!-- Campaign Info -->
+<div class="space-y-3 mb-6 py-4 border-y border-gray-200 dark:border-gray-700">
+{% if k.min_cart_total %}
+<div class="flex items-center justify-between text-sm">
+<span class="text-gray-600 dark:text-gray-400">Min. Sepet Tutarı:</span>
+<span class="font-semibold text-blue-600">{{ k.min_cart_total }} ₺</span>
+</div>
+{% endif %}
+<div class="flex items-center justify-between text-sm">
+<span class="text-gray-600 dark:text-gray-400">İndirim Oranı:</span>
+<span class="font-semibold text-blue-600">%{{ k.percent_discount or '25' }}</span>
+</div>
+</div>
+
+<!-- Action Buttons -->
+<div class="flex gap-3">
+<a href="/" class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center flex items-center justify-center gap-2">
+<span>Alışverişe Başla</span>
+<span class="material-symbols-outlined text-sm">shopping_bag</span>
+</a>
+<a href="/ara?q={{ k.title }}" class="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors text-center font-medium flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">search</span>
+</a>
 </div>
 </div>
 </div>
 {% endfor %}
+{% else %}
+<div class="col-span-full text-center py-12">
+<div class="text-gray-400 dark:text-gray-600 text-lg">
+<span class="material-symbols-outlined text-5xl mb-4 block">local_offer</span>
+Şu anda aktif kampanya bulunmamaktadır.
+</div>
+</div>
+{% endif %}
+</div>
+</div>
+
+<!-- Telefon Ürünleri -->
+<div id="telefon-urunleri" class="mt-16">
+<h3 class="text-2xl font-bold mb-8">Telefon Ürünleri</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+{% if urunler %}
+{% for urun in urunler %}
+<div class="animate-fadeIn campaign-card group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+<a href="/urun/{{ urun.id }}" class="block">
+<div class="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
+<img src="{{ urun.image }}" alt="{{ urun.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+</div>
+<div class="p-6">
+<h4 class="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">{{ urun.name }}</h4>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">{{ urun.description }}</p>
+<div class="flex items-center justify-between mt-4">
+<span class="text-2xl font-bold text-blue-600">{{ urun.price }} ₺</span>
+<form method="POST" action="/sepete-ekle" class="inline">
+<input type="hidden" name="urun_id" value="{{ urun.id }}"/>
+<button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">shopping_cart</span>
+<span>Sepete Ekle</span>
+</button>
+</form>
+</div>
+</div>
+</a>
+</div>
+{% endfor %}
+{% else %}
+<div class="col-span-full text-center py-12">
+<div class="text-gray-400 dark:text-gray-600 text-lg">
+<span class="material-symbols-outlined text-5xl mb-4 block">smartphone</span>
+Telefon ürünü bulunmamaktadır.
+</div>
+</div>
+{% endif %}
+</div>
+</div>
+
+<!-- Quick Links Section -->
+<div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 md:p-12 mt-16 animate-slideInUp stagger-5">
+<h3 class="text-2xl font-bold mb-8 text-center">Kategorilere Göz Atın</h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<a href="/ara?q=telefon" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
+<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">smartphone</span>
+<span class="font-bold text-sm">Telefon</span>
+</a>
+<a href="/ara?q=laptop" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
+<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">laptop</span>
+<span class="font-bold text-sm">Bilgisayar</span>
+</a>
+<a href="/ara?q=tablet" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
+<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">tablet</span>
+<span class="font-bold text-sm">Tablet</span>
+</a>
+<a href="/ara?q=tv" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
+<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">tv</span>
+<span class="font-bold text-sm">Televizyon</span>
+</a>
+</div>
+</div>
+
+<!-- Info Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 animate-slideInUp stagger-6">
+<div class="p-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-blue-600 text-3xl">flash_on</span>
+<h4 class="font-bold">Hızlı İndirim</h4>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300">Seçili ürünlerde anında indirimler uygulanır.</p>
+</div>
+<div class="p-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-green-600 text-3xl">verified</span>
+<h4 class="font-bold">Güvenli Alışveriş</h4>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300">100% güvenli ödeme ve kolay iade işlemleri.</p>
+</div>
+<div class="p-6 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
+<div class="flex items-center gap-3 mb-3">
+<span class="material-symbols-outlined text-purple-600 text-3xl">local_shipping</span>
+<h4 class="font-bold">Ücretsiz Kargo</h4>
+</div>
+<p class="text-sm text-gray-700 dark:text-gray-300">250 TL üzerinde tüm siparişlere ücretsiz kargo.</p>
+</div>
+</div>
+
 </div>
 </main>
+
+<!-- Footer -->
+<footer class="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 mt-20">
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+<div>
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Kurumsal</h3>
+<ul class="mt-4 space-y-4">
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-blue-600" href="/hakkimizda">Hakkımızda</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-blue-600" href="#">Kariyer</a></li>
+<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-blue-600" href="/iletisim">İletişim</a></li>
+</ul>
+</div>
+<div class="col-span-2 md:col-span-2">
+<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Bize Katılın</h3>
+<p class="mt-4 text-base text-gray-600 dark:text-gray-300">En son haberler ve kampanyalar için bizi takip edin.</p>
+<div class="mt-4 flex gap-4">
+<a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 text-2xl">f</a>
+<a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 text-2xl">𝕏</a>
+<a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 text-2xl">📷</a>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-200 dark:border-gray-800 pt-8">
+<p class="text-base text-gray-400 dark:text-gray-500 text-center">© 2024 TechStore. Tüm hakları saklıdır.</p>
+</div>
+</div>
+</footer>
+
 <script>
-// Countdown timer for the campaign banner
-function startCountdown(duration, display) {
-  let timer = duration, hours, minutes, seconds;
-  setInterval(function () {
-    hours = Math.floor(timer / 3600);
-    minutes = Math.floor((timer % 3600) / 60);
-    seconds = timer % 60;
+document.addEventListener('DOMContentLoaded', () => {
+  const timers = document.querySelectorAll('.countdown');
 
-    hours = hours < 10 ? "0" + hours : hours;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
+  timers.forEach((el) => {
+    const endValue = el.dataset.end;
+    if (!endValue) return;
 
-    display.textContent = hours + ":" + minutes + ":" + seconds;
+    const endDate = new Date(endValue.endsWith('Z') ? endValue : `${endValue}Z`);
 
-    if (--timer < 0) {
-      timer = 0;
-    }
-  }, 1000);
-}
+    const updateTimer = () => {
+      const diff = endDate.getTime() - Date.now();
 
-window.addEventListener('DOMContentLoaded', function () {
-  // 12:04:55 = 43495 seconds
-  var duration = 12 * 3600 + 4 * 60 + 55;
-  var display = document.getElementById('countdown-timer');
-  if (display) {
-    startCountdown(duration, display);
-  }
+      if (diff <= 0) {
+        el.textContent = '00:00:00';
+        const card = el.closest('.campaign-card');
+        if (card) card.classList.add('opacity-75');
+        return;
+      }
+
+      const hours = String(Math.floor(diff / 36e5)).padStart(2, '0');
+      const minutes = String(Math.floor((diff % 36e5) / 6e4)).padStart(2, '0');
+      const seconds = String(Math.floor((diff % 6e4) / 1e3)).padStart(2, '0');
+      el.textContent = `${hours}:${minutes}:${seconds}`;
+    };
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  });
 });
 </script>
-<!-- Footer -->
-<footer class="bg-surface-light dark:bg-background-dark border-t border-[#e6e8eb] dark:border-[#232f48] py-12 px-4 lg:px-40">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-<div class="flex flex-col gap-4">
-<h4 class="text-[#111418] dark:text-white font-bold text-lg">TechStore</h4>
-<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
-<a class="hover:text-primary" href="/hakkimizda">Hakkımızda</a>
-<a class="hover:text-primary" href="#">Mağazalar</a>
-<a class="hover:text-primary" href="/iletisim">İletişim</a>
-</div>
-</div>
-<div class="flex flex-col gap-4">
-<h4 class="text-[#111418] dark:text-white font-bold text-lg">Kategoriler</h4>
-<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
-<a class="hover:text-primary" href="#">Bilgisayar</a>
-<a class="hover:text-primary" href="#">Telefon</a>
-<a class="hover:text-primary" href="#">Televizyon</a>
-<a class="hover:text-primary" href="#">Ev Aletleri</a>
-</div>
-</div>
-<div class="flex flex-col gap-4">
-<h4 class="text-[#111418] dark:text-white font-bold text-lg">Müşteri Hizmetleri</h4>
-<div class="flex flex-col gap-2 text-[#637588] dark:text-[#92a4c9] text-sm">
-<a class="hover:text-primary" href="#">Sipariş Takibi</a>
-<a class="hover:text-primary" href="#">İade ve Değişim</a>
-<a class="hover:text-primary" href="#">Sıkça Sorulan Sorular</a>
-</div>
-</div>
-<div class="flex flex-col gap-4">
-<h4 class="text-[#111418] dark:text-white font-bold text-lg">Bizi Takip Edin</h4>
-<div class="flex gap-4">
-<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">FB</span></a>
-<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">TW</span></a>
-<a class="text-[#637588] dark:text-[#92a4c9] hover:text-primary" href="#"><span class="text-2xl">IG</span></a>
-</div>
-</div>
-</div>
-<div class="text-center text-[#637588] dark:text-[#92a4c9] text-sm pt-8 border-t border-[#e6e8eb] dark:border-[#232f48]">
-            © 2023 TechStore. Tüm hakları saklıdır.
-        </div>
-</footer>
-<script>
-      // Countdown helper: finds elements with data-ends and updates remaining time
-      function startCountdown(el, endsAt) {
-        function update(){
-          var now = new Date().getTime();
-          var target = new Date(endsAt).getTime();
-          var diff = target - now;
-          if(diff<=0){ el.textContent = 'Sona Erdi'; return }
-          var days = Math.floor(diff / (1000*60*60*24));
-          var hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-          var mins = Math.floor((diff % (1000*60*60)) / (1000*60));
-          var secs = Math.floor((diff % (1000*60)) / 1000);
-          var out = (days>0? days+'g ':'') + String(hours).padStart(2,'0')+':'+String(mins).padStart(2,'0')+':'+String(secs).padStart(2,'0');
-          el.textContent = out;
-        }
-        update();
-        setInterval(update,1000);
-      }
-      // initialize all countdowns
-      document.addEventListener('DOMContentLoaded', function(){
-        document.querySelectorAll('[data-ends]').forEach(function(node){
-          var ends = node.getAttribute('data-ends');
-          if(ends) startCountdown(node, ends);
-        });
-      });
-    </script>
+
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html class="dark" lang="tr"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Elektronik Mağazası Ana Sayfası</title>
+<title>TechStore - Elektronik Alışveriş</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
@@ -125,7 +125,7 @@
 <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor"></path>
 </svg>
 </div>
-<h2 class="text-lg font-bold tracking-tight">Elektronik Mağazası</h2>
+<h2 class="text-lg font-bold tracking-tight">TechStore</h2>
 </div>
 <nav class="hidden lg:flex items-center gap-9">
 <a class="text-sm font-medium hover:text-primary transition-colors" href="/">Ana Sayfa</a>
@@ -136,17 +136,26 @@
 </div>
 <div class="flex items-center justify-end gap-4">
 <label class="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
-<div class="flex w-full flex-1 items-stretch rounded-lg h-full bg-gray-100 dark:bg-white/5">
+<form action="/ara" method="GET" class="flex w-full flex-1 items-stretch rounded-lg h-full bg-gray-100 dark:bg-white/5">
 <div class="text-gray-400 dark:text-gray-500 flex items-center justify-center pl-3">
 <span class="material-symbols-outlined text-xl">search</span>
 </div>
-<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm font-normal" placeholder="Search" value=""/>
-</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border-none bg-transparent h-full placeholder:text-gray-400 dark:placeholder:text-gray-500 px-2 text-sm font-normal" placeholder="Search" name="q" value="{{ arama_sorgusu or '' }}"/>
+</form>
 </label>
-<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+{% if session.get('user_id') %}
+<div class="flex items-center gap-2">
+<span class="hidden sm:inline text-sm font-medium text-gray-700 dark:text-gray-300">{{ session.get('user_name') }}</span>
+<a href="/profil" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-primary/10 dark:bg-primary/20 text-primary hover:bg-primary/20 dark:hover:bg-primary/30 gap-2 text-sm font-bold min-w-0 px-2.5 transition-colors">
 <span class="material-symbols-outlined text-xl">person</span>
-</button>
-<a href="/sepet" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5">
+</a>
+</div>
+{% else %}
+<a href="/login" class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-xl">person</span>
+</a>
+{% endif %}
+<a href="/sepet" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-100 dark:bg-white/5 text-gray-800 dark:text-white gap-2 text-sm font-bold min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
 <span class="material-symbols-outlined text-xl">shopping_cart</span>
 <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">{{ sepet_urun_sayisi }}</span>
 </a>
@@ -203,19 +212,33 @@
 
 <main class="flex-1">
 <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto py-8 sm:py-12">
-<div class="flex min-h-[480px] flex-col gap-8 rounded-xl items-start justify-end px-6 pb-10 sm:px-10 bg-center bg-cover" data-alt="A modern smartphone displayed on a colorful, abstract background" style='background-image: linear-gradient(rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.4) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuA3S_-aQUu8ygPbgZ_HkfsZRsQWb5-QL_8IQYCi1DWu_dVzsInSMugSAE_loFxwQTDlZNzbuv7RB8rxbi4J_-AjUbIgieKRGQkOso_HDzFY7OdnQgt7s0_sEq8rC_bPSTHpJBwARXAxET20V8NHI6o9I4OzRv-Nx8-dG3LLvcX5YE2NY_kCg6BREsrTHJ4xKee-84fF_UxvhtfYGJCaFtAe4FINjjV-yzZq28J_FN7dEelQe3IWXxIJd3ptwm9wRxzKFe3b7sOiDik");'>
-<div class="flex flex-col gap-4 text-left max-w-xl">
+{% if arama_sorgusu %}
+<div class="mb-8">
+<h2 class="text-3xl font-bold text-gray-900 dark:text-white">"{{ arama_sorgusu }}" için arama sonuçları</h2>
+<p class="text-gray-600 dark:text-gray-400 mt-2">{{ urunler|length }} ürün bulundu</p>
+</div>
+{% else %}
+<div class="flex min-h-[480px] flex-col gap-8 rounded-2xl items-start justify-center px-6 pb-10 sm:px-10 shadow-lg overflow-hidden relative bg-cover bg-center" style="background-image: linear-gradient(rgba(19, 91, 236, 0.88), rgba(37, 99, 235, 0.92)), url('https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&q=80');">
+<div class="absolute inset-0 opacity-10 bg-pattern"></div>
+<div class="relative z-10 flex flex-col gap-4 text-left max-w-xl">
+<div class="inline-block bg-white/20 backdrop-blur px-4 py-2 rounded-full mb-2 self-start">
+<span class="text-sm font-bold text-white">🔥 ÖZEL FIRSATLAR</span>
+</div>
 <h1 class="text-white text-4xl font-black leading-tight tracking-tighter sm:text-5xl">
   En Özel Kampanyalar
 </h1>
 <h2 class="text-white/90 text-base font-normal leading-normal sm:text-lg">
   Yaza özel indirimleri ve en son teknoloji ürünlerini kaçırmayın.
  </h2>
-</div>
-<a href="/kampanyalar" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary/90 transition-colors">
-<span class="truncate">İncele</span>
+<div class="flex gap-4 mt-4">
+<a href="/kampanyalar" class="inline-flex items-center justify-center gap-2 rounded-lg h-12 px-6 bg-white text-primary text-base font-bold tracking-wide hover:bg-gray-100 transition-colors shadow-lg">
+<span>Kampanyaları İncele</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
 </a>
 </div>
+</div>
+</div>
+{% endif %}
 <div class="mt-12 sm:mt-16">
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 {% for urun in urunler %}
@@ -257,27 +280,11 @@
 <li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="/iletisim">İletişim</a></li>
 </ul>
 </div>
-<div>
-<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Yardım</h3>
-<ul class="mt-4 space-y-4">
-<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Sıkça Sorulan Sorular</a></li>
-<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">Kargo ve Teslimat</a></li>
-<li><a class="text-base text-gray-600 dark:text-gray-300 hover:text-primary" href="#">İade Politikası</a></li>
-</ul>
-</div>
-<div class="col-span-2 md:col-span-2">
-<h3 class="text-sm font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">Bültene Abone Ol</h3>
-<p class="mt-4 text-base text-gray-600 dark:text-gray-300">En son fırsatlar ve kampanyalardan ilk siz haberdar olun.</p>
-<form class="mt-4 sm:flex sm:max-w-md">
-<input autocomplete="email" class="appearance-none min-w-0 w-full bg-white dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm py-2 px-4 text-base text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary" id="email-address" name="email" placeholder="E-posta adresinizi girin" required="" type="email"/>
-<div class="mt-3 rounded-md sm:mt-0 sm:ml-3 sm:flex-shrink-0">
-<button class="w-full bg-primary flex items-center justify-center rounded-md py-2 px-4 text-base font-medium text-white hover:bg-primary/90 focus:outline-none" type="submit">Abone Ol</button>
-</div>
-</form>
-</div>
+
+
 </div>
 <div class="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex items-center justify-between">
-<p class="text-base text-gray-400 dark:text-gray-500">© 2024 Elektronik Mağazası. Tüm hakları saklıdır.</p>
+<p class="text-base text-gray-400 dark:text-gray-500">© 2024 TechStore. Tüm hakları saklıdır.</p>
 <div class="flex space-x-6">
 </div>
 </div>
