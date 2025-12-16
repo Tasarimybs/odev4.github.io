@@ -1,117 +1,253 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <title>Yönetici Paneli</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ElectroAdmin - Ana Sayfa Yönetimi</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#111722",
+                        "card-dark": "#1a2230",
+                        "input-dark": "#232f48",
+                        "text-secondary": "#92a4c9"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
 </head>
-<body class="bg-background-light font-display text-gray-800">
-    <div class="max-w-2xl mx-auto py-8">
-        <h1 class="text-2xl font-bold mb-6">Yönetici Paneli</h1>
-        <form method="post" action="/admin/urun-ekle" class="mb-8 p-4 bg-white rounded-lg shadow">
-            <h2 class="text-lg font-semibold mb-2">Yeni Ürün Ekle</h2>
-            <div class="mb-2"><input type="text" name="name" placeholder="Ürün Adı" class="form-input w-full" required></div>
-            <div class="mb-2"><input type="text" name="description" placeholder="Açıklama" class="form-input w-full" required></div>
-            <div class="mb-2"><input type="number" name="price" placeholder="Fiyat" class="form-input w-full" required></div>
-            <div class="mb-2"><input type="text" name="image" placeholder="Resim URL" class="form-input w-full"></div>
-            <div class="mb-2">
-                <select name="category_id" class="form-select w-full" required>
-                    {% for kategori in kategoriler %}
-                    <option value="{{ kategori.id }}">{{ kategori.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Ekle</button>
-        </form>
-        <form method="post" action="/admin/kampanya-ekle" class="mb-8 p-4 bg-white rounded-lg shadow">
-            <h2 class="text-lg font-semibold mb-2">Yeni Kampanya Ekle</h2>
-            <div class="mb-2"><input type="text" name="title" placeholder="Kampanya Başlığı" class="form-input w-full" required></div>
-            <div class="mb-2"><input type="text" name="subtitle" placeholder="Alt başlık / kısa açıklama" class="form-input w-full"></div>
-            <div class="mb-2"><input type="text" name="discount_text" placeholder="İndirim metni (örn. %15)" class="form-input w-full"></div>
-            <div class="mb-2"><input type="text" name="image" placeholder="Banner resim URL" class="form-input w-full"></div>
-            <div class="mb-2 grid grid-cols-2 gap-2">
-                <input type="datetime-local" name="starts_at" class="form-input w-full" />
-                <input type="datetime-local" name="ends_at" class="form-input w-full" />
-            </div>
-            <div class="mb-2 grid grid-cols-3 gap-2">
-                <input type="number" name="percent_discount" placeholder="Yüzde indirim (örn. 15)" class="form-input w-full" min="0" max="100" />
-                <input type="number" name="min_cart_total" placeholder="Sepet eşik (TL)" class="form-input w-full" min="0" />
-                <label class="flex items-center gap-2"><input type="checkbox" name="free_shipping" /> Ücretsiz Kargo</label>
-            </div>
-            <div class="mb-2">
-                <label class="text-sm font-medium">İlgili Ürünler (opsiyonel)</label>
-                <select name="product_ids" multiple class="form-select w-full h-28 mt-1">
-                    {% for u in urunler %}
-                    <option value="{{ u.id }}">{{ u.name }} — {{ u.price }} TL</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Kampanya Ekle</button>
-        </form>
-
-        <h2 class="text-lg font-semibold mb-2">Kampanyalar</h2>
-        <table class="w-full bg-white rounded-lg shadow mb-8">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="p-2">Başlık</th>
-                    <th class="p-2">Alt Başlık</th>
-                    <th class="p-2">İndirim</th>
-                    <th class="p-2">Bitiş</th>
-                    <th class="p-2">İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for k in kampanyalar %}
-                <tr>
-                    <td class="p-2">{{ k.title }}</td>
-                    <td class="p-2">{{ k.subtitle }}</td>
-                    <td class="p-2">{{ k.discount_text }}</td>
-                    <td class="p-2">{{ k.ends_at.strftime('%Y-%m-%d %H:%M') if k.ends_at else '' }}</td>
-                    <td class="p-2">
-                        <a href="/admin/kampanya-duzenle/{{ k.id }}" class="bg-blue-500 text-white px-2 py-1 rounded">Düzenle</a>
-                        <form method="post" action="/admin/kampanya-sil" style="display:inline-flex; margin-left:6px;">
-                            <input type="hidden" name="kamp_id" value="{{ k.id }}">
-                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Sil</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h2 class="text-lg font-semibold mb-2">Ürünler</h2>
-        <table class="w-full bg-white rounded-lg shadow">
-            <thead>
-                <tr class="bg-gray-100">
-                    <th class="p-2">Ad</th>
-                    <th class="p-2">Açıklama</th>
-                    <th class="p-2">Fiyat</th>
-                    <th class="p-2">Kategori</th>
-                    <th class="p-2">İşlem</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for urun in urunler %}
-                <tr>
-                    <td class="p-2">{{ urun.name }}</td>
-                    <td class="p-2">{{ urun.description }}</td>
-                    <td class="p-2">{{ urun.price }}</td>
-                    <td class="p-2">{{ urun.category.name if urun.category else '' }}</td>
-                    <td class="p-2">
-                        <form method="post" action="/admin/urun-guncelle" style="display:inline-flex; gap:4px; align-items:center;">
-                            <input type="hidden" name="urun_id" value="{{ urun.id }}">
-                            <input type="number" name="price" value="{{ urun.price }}" class="form-input w-20" min="0" step="1" required>
-                            <button type="submit" class="bg-blue-500 text-white px-2 py-1 rounded">Güncelle</button>
-                        </form>
-                        <form method="post" action="/admin/urun-sil" style="display:inline-flex;">
-                            <input type="hidden" name="urun_id" value="{{ urun.id }}">
-                            <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded ml-2">Sil</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<body class="bg-background-light dark:bg-background-dark font-display text-white overflow-hidden">
+<div class="flex h-screen w-full">
+<aside class="w-72 h-full flex flex-col bg-surface-dark border-r border-[#232f48] hidden md:flex shrink-0 overflow-y-auto">
+<div class="p-6">
+<div class="flex gap-3 items-center mb-8">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVWmxrmNtdIWCYbzkUPcS1leX8xHynR_AxJStXuP2B7NKENqIf8qu_i5LH_0ArJ2dAAcsA1tyM84GCAVq2VGu2jHWb049V36PT8UfyhvpSVLtTQV2JrQH3HyZWjVv8c7lg0Vr31M23BWKfl8tPWbfwzlOjyj2Ck8H3p_Y5j4eRMpD3mifS0vhNDRJF3NTZXMDdyo5-gq_WKcMyyNEL4_SDnZhq3kQiKfwQ6sJWklhMDtNp7sMVQ9V5YFPgs-bl2TUWhpyG4HD2jQM");'></div>
+<div class="flex flex-col">
+    <h1 class="text-white text-base font-bold leading-normal tracking-tight">TechStore</h1>
+    <p class="text-text-secondary text-xs font-normal leading-normal">Yönetici Paneli</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/20 text-primary" href="/admin">
+    <span class="material-symbols-outlined text-primary">home</span>
+    <p class="text-primary text-sm font-medium leading-normal">Ana Sayfa</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/hakkimizda">
+    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">info</span>
+    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Hakkımızda</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/mesajlar">
+    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">contact_mail</span>
+    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">İletişim</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/sepetler">
+    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">shopping_cart</span>
+    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Sepet</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/profiller">
+    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">people</span>
+    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Profiller</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/kampanyalar">
+    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">campaign</span>
+    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Kampanyalar</p>
+</a>
+</div>
+</div>
+<div class="mt-auto p-6 border-t border-[#232f48]">
+<a class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-input-dark rounded-lg transition-colors" href="/logout">
+<span class="material-symbols-outlined text-text-secondary">logout</span>
+<p class="text-text-secondary text-sm font-medium">Çıkış Yap</p>
+</a>
+</div>
+</aside>
+<div class="flex flex-col flex-1 h-full overflow-hidden">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#232f48] bg-surface-dark px-6 py-3 shrink-0">
+<div class="flex items-center gap-4 text-white md:hidden">
+<button class="text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">ElectroAdmin</h2>
+</div>
+<div class="hidden md:block"></div>
+<div class="flex items-center gap-4 justify-end flex-1">
+<button class="text-text-secondary hover:text-white transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-text-secondary hover:text-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-red-500 rounded-full"></span>
+</button>
+<div class="w-px h-6 bg-[#232f48] mx-2"></div>
+<div class="flex items-center gap-3 cursor-pointer">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-medium text-white">{{ session.get('user_name', 'Admin') }}</p>
+<p class="text-xs text-text-secondary">Süper Admin</p>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 ring-2 ring-[#232f48]" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBtjhYph-6jF2bbdezyfc-LEAsciPxo0YXxWXRn6K9A2-JPH9dj2hcVc-_AThGZUZePTCT0PDmD4dRs10elgvfIbZ39uzZF4TN5fxH2KZYg_wv2z8e5pvQMmJussx2aGtp5XLLZuaGmLpINVitjIa_qGMsOmEmHR3LPQQnD3G-QtJEQGm0ZG1Nx0gkXoGw-2x-Qp3FjuFjLZpxxFEE7qO9yu-UdQHTwPNpDyXgAf6pCAAnHwpXlIAoqw4Nb66y__cWA3DI5S4bl9WE");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto bg-background-dark p-4 md:p-8">
+<div class="max-w-6xl mx-auto flex flex-col gap-6">
+<div class="flex flex-wrap gap-2 text-sm">
+<a class="text-text-secondary hover:text-primary transition-colors font-medium" href="#">Dashboard</a>
+<span class="text-text-secondary font-medium">/</span>
+<span class="text-white font-medium">Ana Sayfa Yönetimi</span>
+</div>
+<div class="flex flex-col gap-2">
+<h1 class="text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">Ana Sayfa Vitrin Yönetimi</h1>
+<p class="text-text-secondary text-base font-normal">Ana sayfada öne çıkarılan ürünleri, slider görsellerini ve fırsat bölümlerini buradan yönetebilirsiniz.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+<div class="lg:col-span-2 bg-card-dark rounded-xl border border-[#232f48] shadow-sm flex flex-col">
+<div class="px-6 py-5 border-b border-[#232f48] flex items-center justify-between">
+<h2 class="text-white text-xl font-bold tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">add_circle</span>
+                                    Vitrine Ürün Ekle
+                                </h2>
+</div>
+<form class="p-6 flex flex-col gap-6" method="post" action="/admin/vitrin/ekle">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-secondary">Ürün ID</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">qr_code_2</span>
+<input name="product_id" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" placeholder="Örn: 1" type="number" required />
+</div>
+<p class="text-xs text-text-secondary mt-1">Ürünü veritabanında aramak için ID giriniz.</p>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-secondary">Kategori</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">category</span>
+<select name="category" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-10 text-white appearance-none transition-all outline-none cursor-pointer" required>
+<option disabled selected value="">Kategori Seçin</option>
+<option value="telefonlar">Telefonlar</option>
+<option value="televizyonlar">Televizyonlar</option>
+<option value="bilgisayarlar">Bilgisayarlar</option>
+<option value="tabletler">Tabletler</option>
+<option value="kulakliklar">Kulaklıklar</option>
+</select>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-text-secondary">Fiyat</label>
+        <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">payments</span>
+            <input name="price" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" placeholder="Örn: 9999.00" type="number" step="0.01" min="0" />
+        </div>
     </div>
-</body>
-</html>
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-text-secondary">Fotoğraf URL'si</label>
+        <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">image</span>
+            <input name="image" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" placeholder="https://..." type="url" />
+        </div>
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="flex flex-col gap-2 md:col-span-2">
+        <label class="text-sm font-medium text-text-secondary">Ürün İsmi</label>
+        <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">drive_file_rename_outline</span>
+            <input name="name" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" placeholder="Örn: iPhone 15" type="text" />
+        </div>
+    </div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-secondary">Görüntüleme Sırası</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">sort</span>
+<input name="sort_order" class="w-full bg-input-dark border border-transparent focus:border-primary focus:ring-1 focus:ring-primary rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" min="1" placeholder="1" type="number" required />
+</div>
+</div>
+<div class="flex items-end">
+<button class="w-full h-12 bg-primary hover:bg-blue-600 active:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-lg shadow-blue-900/20" type="submit">
+<span class="material-symbols-outlined">save</span>
+                                            Vitrine Ekle
+                                        </button>
+</div>
+</div>
+</form>
+</div>
+<div class="bg-card-dark rounded-xl border border-[#232f48] shadow-sm flex flex-col h-full">
+<div class="px-6 py-5 border-b border-[#232f48]">
+<h2 class="text-white text-xl font-bold tracking-tight flex items-center gap-2">
+<span class="material-symbols-outlined text-red-400">remove_circle</span>
+                                    Vitrinden Çıkar
+                                </h2>
+</div>
+<form class="p-6 flex flex-col gap-6 flex-1" method="post" action="/admin/vitrin/sil">
+<div class="p-4 bg-red-900/10 border border-red-900/30 rounded-lg">
+<p class="text-sm text-red-200/80">Dikkat: Bu işlem ürünü tüm vitrin alanlarından kaldırır.</p>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-sm font-medium text-text-secondary">Ürün İsmi</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary material-symbols-outlined text-[20px]">delete</span>
+<input name="product_name" class="w-full bg-input-dark border border-transparent focus:border-red-500 focus:ring-1 focus:ring-red-500 rounded-lg h-12 pl-10 pr-4 text-white placeholder-gray-500 transition-all outline-none" placeholder="Örn: iPhone 15" type="text" required />
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full h-12 bg-transparent border border-red-900/50 hover:bg-red-900/20 text-red-400 hover:text-red-300 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors" type="submit">
+<span class="material-symbols-outlined">delete</span>
+                                        Ürünü Kaldır
+                                    </button>
+</div>
+</form>
+</div>
+</div>
+<div class="bg-card-dark rounded-xl border border-[#232f48] shadow-sm mt-2">
+<div class="px-6 py-4 border-b border-[#232f48] flex items-center justify-between">
+    <h3 class="text-white text-lg font-bold">Mevcut Ürünler</h3>
+</div>
+<div class="p-0">
+{% for product in products %}
+    <div class="flex items-center justify-between px-6 py-4 border-b border-[#232f48] hover:bg-[#232f48]/30 transition-colors">
+        <div class="flex items-center gap-4">
+            <div class="size-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 shrink-0">
+                <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:gap-6">
+                <p class="text-white font-medium text-sm">{{ product.name }}</p>
+                <p class="text-text-secondary text-xs sm:text-sm">ID: {{ product.id }}</p>
+                <p class="text-text-secondary text-xs sm:text-sm">Fiyat: {{ product.price }} TL</p>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="px-6 py-6 text-center text-text-secondary">Hiç ürün bulunamadı.</div>
+{% endfor %}
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

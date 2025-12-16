@@ -1,42 +1,220 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Mesajlar</title>
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin İletişim Mesajları</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#1a2332", 
+                        "surface-highlight": "#232f48"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", 
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", 
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f48; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #324467; 
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-montserrat">
-    <div class="container mx-auto py-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">İletişim Mesajları</h1>
-        <a href="/admin" class="mb-4 inline-block text-blue-600 hover:underline">← Admin Paneline Dön</a>
-        <div class="bg-white shadow rounded-lg p-6">
-            <table class="min-w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="px-4 py-2">Ad Soyad</th>
-                        <th class="px-4 py-2">E-posta</th>
-                        <th class="px-4 py-2">Mesaj</th>
-                        <th class="px-4 py-2">Tarih</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for msg in messages %}
-                    <tr class="border-b">
-                        <td class="px-4 py-2">{{ msg.name }}</td>
-                        <td class="px-4 py-2">{{ msg.email }}</td>
-                        <td class="px-4 py-2">{{ msg.message }}</td>
-                        <td class="px-4 py-2">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-gray-500">Hiç mesaj yok.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white overflow-hidden">
+<div class="flex h-screen w-full">
+    <!-- Admin sidebar (same style as admin.html) -->
+    <aside class="w-72 h-full flex flex-col bg-surface-dark border-r border-[#232f48] hidden md:flex shrink-0 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex gap-3 items-center mb-8">
+                <div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVWmxrmNtdIWCYbzkUPcS1leX8xHynR_AxJStXuP2B7NKENqIf8qu_i5LH_0ArJ2dAAcsA1tyM84GCAVq2VGu2jHWb049V36PT8UfyhvpSVLtTQV2JrQH3HyZWjVv8c7lg0Vr31M23BWKfl8tPWbfwzlOjyj2Ck8H3p_Y5j4eRMpD3mifS0vhNDRJF3NTZXMDdyo5-gq_WKcMyyNEL4_SDnZhq3kQiKfwQ6sJWklhMDtNp7sMVQ9V5YFPgs-bl2TUWhpyG4HD2jQM");'></div>
+                <div class="flex flex-col">
+                    <h1 class="text-white text-base font-bold leading-normal tracking-tight">TechStore</h1>
+                    <p class="text-text-secondary text-xs font-normal leading-normal">Yönetici Paneli</p>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">home</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Ana Sayfa</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/hakkimizda">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">info</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Hakkımızda</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/20 text-primary" href="/admin/mesajlar">
+                    <span class="material-symbols-outlined text-primary">contact_mail</span>
+                    <p class="text-primary text-sm font-medium leading-normal">İletişim</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/sepetler">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">shopping_cart</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Sepet</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/profiller">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">people</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Profiller</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/kampanyalar">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">campaign</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Kampanyalar</p>
+                </a>
+            </div>
         </div>
-    </div>
-</body>
-</html>
+        <div class="mt-auto p-6 border-t border-[#232f48]">
+            <a class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-input-dark rounded-lg transition-colors" href="/logout">
+                <span class="material-symbols-outlined text-text-secondary">logout</span>
+                <p class="text-text-secondary text-sm font-medium">Çıkış Yap</p>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="flex flex-1 flex-col overflow-x-hidden overflow-y-auto bg-background-light dark:bg-background-dark">
+        <div class="layout-container flex h-full grow flex-col">
+            <div class="px-6 lg:px-12 flex flex-1 justify-center py-8">
+                <div class="layout-content-container flex flex-col w-full max-w-[1200px] flex-1 gap-6">
+                    <div class="flex flex-wrap justify-between items-end gap-4">
+                        <div class="flex flex-col gap-2">
+                            <h2 class="text-slate-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">Müşteri İletişim Mesajları</h2>
+                            <p class="text-slate-500 dark:text-[#92a4c9] text-sm font-normal leading-normal">Web sitesi üzerinden gelen destek taleplerini ve soruları yönetin.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="/admin/mesajlar/export" class="flex items-center justify-center rounded-lg bg-surface-highlight hover:bg-surface-highlight/80 h-10 px-4 text-white text-sm font-medium transition-colors">
+                                <span class="material-symbols-outlined mr-2 text-[20px]">file_download</span>
+                                Dışa Aktar
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Search & filter -->
+                    <div class="flex flex-col sm:flex-row gap-4 w-full bg-white dark:bg-surface-dark p-2 rounded-xl border border-slate-200 dark:border-[#232f48]">
+                        <form method="get" action="/admin/mesajlar" class="flex flex-1 items-center h-12 w-full">
+                            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                                <div class="text-slate-400 dark:text-[#92a4c9] flex bg-slate-50 dark:bg-[#232f48] items-center justify-center pl-4 rounded-l-lg">
+                                    <span class="material-symbols-outlined">search</span>
+                                </div>
+                                <input name="q" class="flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-slate-900 dark:text-white focus:outline-0 focus:ring-0 border-none bg-slate-50 dark:bg-[#232f48] h-full placeholder:text-slate-400 dark:placeholder:text-[#92a4c9] px-4 pl-2 text-sm font-normal leading-normal" placeholder="Konu, isim veya e-posta ile arayın..." value="{{ request.args.get('q', '') if request and request.args else '' }}"/>
+                            </div>
+                        </form>
+                        <form method="get" action="/admin/mesajlar" class="flex gap-2">
+                            <div class="relative h-12">
+                                <select name="status" class="h-full appearance-none rounded-lg bg-slate-50 dark:bg-[#232f48] border-none text-slate-900 dark:text-white text-sm font-medium px-4 pr-10 focus:ring-1 focus:ring-primary cursor-pointer">
+                                    <option value="">Tüm Mesajlar</option>
+                                    <option value="unread" {{ 'selected' if request.args.get('status') == 'unread' else '' }}>Okunmamış</option>
+                                    <option value="read" {{ 'selected' if request.args.get('status') == 'read' else '' }}>Okunmuş</option>
+                                    <option value="starred" {{ 'selected' if request.args.get('status') == 'starred' else '' }}>Yıldızlı</option>
+                                </select>
+                                <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">expand_more</span>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Messages table -->
+                    <div class="flex flex-col rounded-xl border border-slate-200 dark:border-[#324467] bg-white dark:bg-surface-dark overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto w-full">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 dark:bg-[#192233] border-b border-slate-200 dark:border-[#324467]">
+                                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-[#92a4c9] uppercase tracking-wider w-[20%]">Gönderen</th>
+                                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-[#92a4c9] uppercase tracking-wider w-[25%]">Konu</th>
+                                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-[#92a4c9] uppercase tracking-wider w-[20%]">Tarih</th>
+                                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-[#92a4c9] uppercase tracking-wider w-[15%]">Durum</th>
+                                        <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-[#92a4c9] uppercase tracking-wider w-[20%] text-right">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 dark:divide-[#324467]">
+                                    {% for msg in messages %}
+                                    <tr class="group hover:bg-slate-50 dark:hover:bg-[#232f48] transition-colors cursor-pointer relative">
+                                        <td class="px-6 py-4">
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-900 dark:text-white text-sm font-semibold">{{ msg.name }}</span>
+                                                <span class="text-slate-500 dark:text-[#92a4c9] text-xs">{{ msg.email }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-slate-900 dark:text-white text-sm font-medium line-clamp-1">{{ msg.subject if msg.subject else (msg.message[:60] ~ ("..." if msg.message|length > 60 else "")) }}</p>
+                                            <p class="text-slate-500 dark:text-[#92a4c9] text-xs mt-1 line-clamp-1">{{ msg.message }}</p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="text-slate-500 dark:text-[#92a4c9] text-sm">{{ msg.created_at.strftime('%d.%m.%Y %H:%M') if msg.created_at else '' }}</span>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-200 dark:bg-slate-700/50 px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 border border-transparent">—</span>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <a href="/admin/mesajlar?view={{ msg.id }}" class="inline-flex items-center justify-center rounded-lg bg-slate-100 dark:bg-[#232f48] hover:bg-primary hover:text-white text-slate-600 dark:text-white p-2 transition-all">
+                                                <span class="material-symbols-outlined text-[20px]">visibility</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-6 text-slate-500 dark:text-[#92a4c9]">Hiç mesaj bulunamadı.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Pagination (optional) -->
+                        {% if pagination %}
+                        <div class="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-[#324467] bg-slate-50 dark:bg-[#1a2332]">
+                            <div class="text-sm text-slate-500 dark:text-[#92a4c9]">
+                                Toplam <span class="font-medium text-slate-900 dark:text-white">{{ pagination.total }}</span> mesajdan 
+                                <span class="font-medium text-slate-900 dark:text-white">{{ pagination.start }}-{{ pagination.end }}</span> arası gösteriliyor
+                            </div>
+                            <div class="flex gap-1">
+                                <a class="flex size-8 items-center justify-center rounded-lg border border-slate-200 dark:border-[#324467] hover:bg-slate-100 dark:hover:bg-[#232f48] text-slate-600 dark:text-white transition-colors" href="{{ pagination.prev_url }}">
+                                    <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+                                </a>
+                                {% for p in pagination.pages %}
+                                <a class="flex size-8 items-center justify-center rounded-lg {{ 'bg-primary text-white' if p.active else 'border border-slate-200 dark:border-[#324467] hover:bg-slate-100 dark:hover:bg-[#232f48] text-slate-600 dark:text-white text-xs font-normal transition-colors' }}" href="{{ p.url }}">{{ p.number }}</a>
+                                {% endfor %}
+                                <a class="flex size-8 items-center justify-center rounded-lg border border-slate-200 dark:border-[#324467] hover:bg-slate-100 dark:hover:bg-[#232f48] text-slate-600 dark:text-white transition-colors" href="{{ pagination.next_url }}">
+                                    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bottom message content placeholder removed as requested -->
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body></html>

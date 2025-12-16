@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Hakkımızda Yönetimi</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#192233",
+                        "border-dark": "#232f48",
+                        "text-secondary": "#92a4c9",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans", "sans-serif"],
+                        "body": ["Inter", "Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #101622; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232f48; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #324467; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white">
+<div class="relative flex h-screen w-full bg-background-light dark:bg-background-dark overflow-hidden">
+<aside class="w-72 h-full flex flex-col bg-surface-dark border-r border-[#232f48] hidden md:flex shrink-0 overflow-y-auto">
+    <div class="p-6">
+        <div class="flex gap-3 items-center mb-8">
+            <div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVWmxrmNtdIWCYbzkUPcS1leX8xHynR_AxJStXuP2B7NKENqIf8qu_i5LH_0ArJ2dAAcsA1tyM84GCAVq2VGu2jHWb049V36PT8UfyhvpSVLtTQV2JrQH3HyZWjVv8c7lg0Vr31M23BWKfl8tPWbfwzlOjyj2Ck8H3p_Y5j4eRMpD3mifS0vhNDRJF3NTZXMDdyo5-gq_WKcMyyNEL4_SDnZhq3kQiKfwQ6sJWklhMDtNp7sMVQ9V5YFPgs-bl2TUWhpyG4HD2jQM");'></div>
+            <div class="flex flex-col">
+                <h1 class="text-white text-base font-bold leading-normal tracking-tight">TechStore</h1>
+                <p class="text-text-secondary text-xs font-normal leading-normal">Yönetici Paneli</p>
+            </div>
+        </div>
+        <div class="flex flex-col gap-2">
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin">
+                <span class="material-symbols-outlined text-text-secondary group-hover:text-white">home</span>
+                <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Ana Sayfa</p>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/20 text-primary" href="/admin/hakkimizda">
+                <span class="material-symbols-outlined text-primary">info</span>
+                <p class="text-primary text-sm font-medium leading-normal">Hakkımızda</p>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/mesajlar">
+                <span class="material-symbols-outlined text-text-secondary group-hover:text-white">contact_mail</span>
+                <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">İletişim</p>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/sepetler">
+                <span class="material-symbols-outlined text-text-secondary group-hover:text-white">shopping_cart</span>
+                <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Sepet</p>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/profiller">
+                <span class="material-symbols-outlined text-text-secondary group-hover:text-white">people</span>
+                <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Profiller</p>
+            </a>
+            <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/kampanyalar">
+                <span class="material-symbols-outlined text-text-secondary group-hover:text-white">campaign</span>
+                <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Kampanyalar</p>
+            </a>
+        </div>
+    </div>
+    <div class="mt-auto p-6 border-t border-[#232f48]">
+        <a class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-input-dark rounded-lg transition-colors" href="/logout">
+            <span class="material-symbols-outlined text-text-secondary">logout</span>
+            <p class="text-text-secondary text-sm font-medium">Çıkış Yap</p>
+        </a>
+    </div>
+</aside>
+<div class="flex flex-1 flex-col h-full overflow-hidden relative">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-border-dark bg-white dark:bg-background-dark px-6 py-3 md:px-10 z-10">
+<div class="flex items-center gap-4">
+<button class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<a class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors" href="/admin">
+<span class="material-symbols-outlined text-slate-700 dark:text-white">arrow_back</span>
+</a>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Hakkımızda Yönetimi</h2>
+</div>
+<div class="flex items-center gap-6">
+<a href="/" class="hidden sm:flex h-9 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-4 bg-primary hover:bg-blue-600 transition-colors text-white text-sm font-bold leading-normal tracking-[0.015em] shadow-lg shadow-primary/20">
+<span class="truncate flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                            Siteyi Görüntüle
+                        </span>
+</a>
+<div class="relative">
+<span class="absolute top-0 right-0 size-2.5 bg-red-500 rounded-full border-2 border-white dark:border-background-dark"></span>
+<span class="material-symbols-outlined text-slate-500 dark:text-text-secondary cursor-pointer">notifications</span>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto p-4 md:p-8 lg:px-12 bg-gray-50 dark:bg-background-dark">
+<div class="max-w-[1024px] mx-auto flex flex-col gap-6">
+<div class="flex flex-wrap items-center gap-2 text-sm">
+<a class="text-slate-500 dark:text-text-secondary hover:text-primary transition-colors flex items-center gap-1" href="/admin">
+<span class="material-symbols-outlined text-[18px]">home</span>
+                            Ana Sayfa
+                        </a>
+<span class="material-symbols-outlined text-slate-400 text-[16px]">chevron_right</span>
+<a class="text-slate-500 dark:text-text-secondary hover:text-primary transition-colors" href="#">Yönetim</a>
+<span class="material-symbols-outlined text-slate-400 text-[16px]">chevron_right</span>
+<span class="text-slate-900 dark:text-white font-medium">Hakkımızda</span>
+</div>
+<div class="flex flex-col gap-2">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-3xl font-bold">Hakkımızda İçeriği</h1>
+<p class="text-slate-500 dark:text-text-secondary text-sm md:text-base">Müşterilerinizin göreceği kurumsal metni buradan güncelleyebilirsiniz.</p>
+</div>
+<form method="post" action="/admin/hakkimizda-guncelle">
+<div class="flex flex-col rounded-xl border border-gray-200 dark:border-border-dark bg-white dark:bg-surface-dark shadow-sm overflow-hidden">
+<div class="flex items-center gap-1 p-2 border-b border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1f2b42] overflow-x-auto">
+<!-- Format butonları sadece görsel, işlevsiz -->
+<div class="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-border-dark">
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Bold">
+<span class="material-symbols-outlined text-[20px]">format_bold</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Italic">
+<span class="material-symbols-outlined text-[20px]">format_italic</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Underline">
+<span class="material-symbols-outlined text-[20px]">format_underlined</span>
+</button>
+</div>
+<div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-border-dark">
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Left">
+<span class="material-symbols-outlined text-[20px]">format_align_left</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Center">
+<span class="material-symbols-outlined text-[20px]">format_align_center</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Right">
+<span class="material-symbols-outlined text-[20px]">format_align_right</span>
+</button>
+</div>
+<div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-border-dark">
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Bullet List">
+<span class="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Numbered List">
+<span class="material-symbols-outlined text-[20px]">format_list_numbered</span>
+</button>
+</div>
+<div class="flex items-center gap-1 pl-2">
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Insert Link">
+<span class="material-symbols-outlined text-[20px]">link</span>
+</button>
+<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Insert Image">
+<span class="material-symbols-outlined text-[20px]">image</span>
+</button>
+</div>
+</div>
+<div class="p-4 bg-white dark:bg-surface-dark">
+<label class="sr-only">Sayfa İçeriği</label>
+<textarea name="content" class="w-full min-h-[400px] resize-y bg-transparent text-slate-800 dark:text-gray-200 placeholder-slate-400 dark:placeholder-text-secondary border-0 focus:ring-0 p-2 text-base font-normal leading-relaxed" placeholder="Buraya yazmaya başlayın...">{{ about.content if about else '' }}</textarea>
+</div>
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1f2b42]">
+<p class="text-xs text-slate-500 dark:text-text-secondary">
+                                Son güncelleme: <span class="font-medium text-slate-700 dark:text-gray-300">{{ about.updated_at.strftime('%d.%m.%Y %H:%M') if about and about.updated_at else '' }}</span>
+</p>
+<div class="flex gap-3 w-full sm:w-auto">
+<a href="/admin" class="flex-1 sm:flex-none h-10 px-6 rounded-lg border border-gray-300 dark:border-gray-600 text-slate-700 dark:text-white font-medium text-sm hover:bg-gray-100 dark:hover:bg-border-dark transition-colors text-center flex items-center justify-center">Vazgeç</a>
+<button class="flex-1 sm:flex-none h-10 px-6 rounded-lg bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                                    Güncelle
+                                </button>
+</div>
+</div>
+</div>
+</form>
+<!-- Alt ipucu kutucukları kaldırıldı -->
+</div>
+</main>
+</div>
+</div>
+</body></html>

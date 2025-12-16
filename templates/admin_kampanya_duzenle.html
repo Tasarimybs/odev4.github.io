@@ -1,43 +1,246 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Kampanya Düzenle</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<html class="dark" lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Kampanya Ekleme</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "surface-dark": "#192233",
+                        "border-dark": "#324467",
+                        "text-secondary": "#92a4c9"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #101622; }
+        ::-webkit-scrollbar-thumb { background: #324467; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4a5d85; }
+        ::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.6; cursor: pointer; }
+    </style>
 </head>
-<body class="bg-background-light font-display text-gray-800">
-<div class="max-w-2xl mx-auto py-8">
-    <h1 class="text-2xl font-bold mb-6">Kampanya Düzenle</h1>
-    <form method="post" action="/admin/kampanya-guncelle" class="mb-8 p-4 bg-white rounded-lg shadow">
-        <input type="hidden" name="kamp_id" value="{{ kamp.id }}" />
-        <div class="mb-2"><input type="text" name="title" placeholder="Kampanya Başlığı" value="{{ kamp.title }}" class="form-input w-full" required></div>
-        <div class="mb-2"><input type="text" name="subtitle" placeholder="Alt başlık / kısa açıklama" value="{{ kamp.subtitle }}" class="form-input w-full"></div>
-        <div class="mb-2"><input type="text" name="discount_text" placeholder="İndirim metni (örn. %15)" value="{{ kamp.discount_text }}" class="form-input w-full"></div>
-        <div class="mb-2"><input type="text" name="image" placeholder="Banner resim URL" value="{{ kamp.image }}" class="form-input w-full"></div>
-        <div class="mb-2 grid grid-cols-2 gap-2">
-            <input type="datetime-local" name="starts_at" class="form-input w-full" value="{{ kamp.starts_at.isoformat()[:16] if kamp.starts_at else '' }}" />
-            <input type="datetime-local" name="ends_at" class="form-input w-full" value="{{ kamp.ends_at.isoformat()[:16] if kamp.ends_at else '' }}" />
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-white antialiased overflow-hidden">
+<div class="flex h-screen w-full">
+    <aside class="w-72 h-full flex flex-col bg-surface-dark border-r border-[#232f48] hidden md:flex shrink-0 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex gap-3 items-center mb-8">
+                <div class="bg-center bg-no-repeat bg-cover rounded-full size-10 shrink-0" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVWmxrmNtdIWCYbzkUPcS1leX8xHynR_AxJStXuP2B7NKENqIf8qu_i5LH_0ArJ2dAAcsA1tyM84GCAVq2VGu2jHWb049V36PT8UfyhvpSVLtTQV2JrQH3HyZWjVv8c7lg0Vr31M23BWKfl8tPWbfwzlOjyj2Ck8H3p_Y5j4eRMpD3mifS0vhNDRJF3NTZXMDdyo5-gq_WKcMyyNEL4_SDnZhq3kQiKfwQ6sJWklhMDtNp7sMVQ9V5YFPgs-bl2TUWhpyG4HD2jQM");'></div>
+                <div class="flex flex-col">
+                    <h1 class="text-white text-base font-bold leading-normal tracking-tight">TechStore</h1>
+                    <p class="text-text-secondary text-xs font-normal leading-normal">Yönetici Paneli</p>
+                </div>
+            </div>
+            <div class="flex flex-col gap-2">
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">home</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Ana Sayfa</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/hakkimizda">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">info</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Hakkımızda</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/mesajlar">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">contact_mail</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">İletişim</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/sepetler">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">shopping_cart</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Sepet</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-input-dark transition-colors group" href="/admin/profiller">
+                    <span class="material-symbols-outlined text-text-secondary group-hover:text-white">people</span>
+                    <p class="text-text-secondary group-hover:text-white text-sm font-medium leading-normal">Profiller</p>
+                </a>
+                <a class="flex items-center gap-3 px-3 py-3 rounded-lg bg-primary/20 text-primary" href="/admin/kampanyalar">
+                    <span class="material-symbols-outlined text-primary">campaign</span>
+                    <p class="text-primary text-sm font-medium leading-normal">Kampanyalar</p>
+                </a>
+            </div>
         </div>
-        <div class="mb-2 grid grid-cols-3 gap-2">
-            <input type="number" name="percent_discount" placeholder="Yüzde indirim (örn. 15)" class="form-input w-full" min="0" max="100" value="{{ kamp.percent_discount or '' }}" />
-            <input type="number" name="min_cart_total" placeholder="Sepet eşik (TL)" class="form-input w-full" min="0" value="{{ kamp.min_cart_total or '' }}" />
-            <label class="flex items-center gap-2"><input type="checkbox" name="free_shipping" {% if kamp.free_shipping %}checked{% endif %} /> Ücretsiz Kargo</label>
+        <div class="mt-auto p-6 border-t border-[#232f48]">
+            <a class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-input-dark rounded-lg transition-colors" href="/logout">
+                <span class="material-symbols-outlined text-text-secondary">logout</span>
+                <p class="text-text-secondary text-sm font-medium">Çıkış Yap</p>
+            </a>
         </div>
-        <div class="mb-2">
-            <label class="text-sm font-medium">İlgili Ürünler (opsiyonel)</label>
-            <select name="product_ids" multiple class="form-select w-full h-28 mt-1">
-                {% for u in urunler %}
-                <option value="{{ u.id }}" {% if u in kamp.products %}selected{% endif %}>{{ u.name }} — {{ u.price }} TL</option>
-                {% endfor %}
-            </select>
+    </aside>
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <div class="md:hidden flex items-center justify-between p-4 bg-[#111722] border-b border-[#232f48]">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">bolt</span>
+                <span class="text-white font-bold">TechStore</span>
+            </div>
+            <button class="text-white">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
         </div>
-        <div class="mb-2">
-            <label class="flex items-center gap-2"><input type="checkbox" name="active" {% if kamp.active %}checked{% endif %} /> Aktif</label>
+        <div class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-4 md:p-8 lg:px-12">
+            <div class="max-w-[1200px] mx-auto flex flex-col gap-8 pb-20">
+                <nav aria-label="Breadcrumb" class="flex">
+                    <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                        <li class="inline-flex items-center">
+                            <a class="inline-flex items-center text-sm font-medium text-text-secondary hover:text-primary" href="/admin">Dashboard</a>
+                        </li>
+                        <li>
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined text-text-secondary text-lg mx-1">chevron_right</span>
+                                <a class="text-sm font-medium text-text-secondary hover:text-primary" href="/admin/kampanyalar">Kampanyalar</a>
+                            </div>
+                        </li>
+                        <li aria-current="page">
+                            <div class="flex items-center">
+                                <span class="material-symbols-outlined text-text-secondary text-lg mx-1">chevron_right</span>
+                                <span class="text-sm font-medium text-white">Yeni Ekle</span>
+                            </div>
+                        </li>
+                    </ol>
+                </nav>
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">Yeni Kampanya Oluştur</h1>
+                        <p class="mt-2 text-text-secondary text-base">Elektronik ürünleriniz için yeni bir indirim veya promosyon tanımlayın.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button form="campaign-form" type="submit" class="px-4 py-2 rounded-lg border border-border-dark text-white hover:bg-surface-dark transition-colors text-sm font-medium">Taslak Olarak Kaydet</button>
+                    </div>
+                </div>
+
+                <form id="campaign-form" method="post" action="/admin/kampanyalar/ekle" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 flex flex-col gap-6">
+                        <div class="bg-white dark:bg-[#111722] rounded-xl border border-gray-200 dark:border-[#232f48] p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">info</span>
+                                Kampanya Detayları
+                            </h3>
+                            <div class="space-y-6">
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Kampanya Başlığı</span>
+                                    <input name="title" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary transition-all" placeholder="Örn: Büyük Yaz İndirimi - Tüm Laptoplarda %20" type="text" required/>
+                                </label>
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Açıklama</span>
+                                    <textarea name="subtitle" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 min-h-[140px] focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary resize-none transition-all" placeholder="Kampanya koşulları ve detaylarını buraya giriniz..."></textarea>
+                                    <p class="text-xs text-text-secondary text-right">0/500 karakter</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-[#111722] rounded-xl border border-gray-200 dark:border-[#232f48] p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">percent</span>
+                                İndirim Koşulları
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">İndirim Tipi</span>
+                                    <div class="relative">
+                                        <select name="discount_type" class="w-full appearance-none rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                            <option value="percentage">Yüzde İndirimi (%)</option>
+                                            <option value="fixed">Sabit Tutar (₺)</option>
+                                        </select>
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                                            <span class="material-symbols-outlined">expand_more</span>
+                                        </span>
+                                    </div>
+                                </label>
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">İndirim Değeri</span>
+                                    <div class="relative">
+                                        <input name="discount_value" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pl-4 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="20" type="number"/>
+                                    </div>
+                                </label>
+                                <label class="flex flex-col gap-2 md:col-span-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Hedef Kategori</span>
+                                    <div class="relative">
+                                        <select name="target_category" class="w-full appearance-none rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                            <option disabled selected value="">Kategori Seçiniz</option>
+                                            <option value="all">Tüm Ürünler</option>
+                                            {% for c in kategoriler %}
+                                            <option value="{{ c.id }}">{{ c.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                                            <span class="material-symbols-outlined">category</span>
+                                        </span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-6">
+                        <div class="bg-white dark:bg-[#111722] rounded-xl border border-gray-200 dark:border-[#232f48] p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">schedule</span>
+                                Zamanlama
+                            </h3>
+                            <div class="space-y-4">
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Başlangıç Tarihi</span>
+                                    <div class="relative">
+                                        <input name="starts_at" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" type="datetime-local"/>
+                                    </div>
+                                </label>
+                                <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Bitiş Tarihi</span>
+                                    <div class="relative">
+                                        <input name="ends_at" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" type="datetime-local"/>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-[#111722] rounded-xl border border-gray-200 dark:border-[#232f48] p-6 shadow-sm flex-1">
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">image</span>
+                                Kampanya Görseli
+                            </h3>
+                            <div class="w-full h-48 border-2 border-dashed border-gray-300 dark:border-border-dark rounded-xl bg-gray-50 dark:bg-surface-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-gray-100 dark:hover:bg-[#232f48] transition-all group relative overflow-hidden">
+                                <div class="flex flex-col items-center gap-2 group-hover:scale-105 transition-transform z-10">
+                                    <div class="bg-white dark:bg-[#111722] p-3 rounded-full shadow-sm">
+                                        <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+                                    </div>
+                                    <p class="text-slate-700 dark:text-white font-medium text-sm">Görsel Yükle</p>
+                                    <p class="text-text-secondary text-xs px-4 text-center">PNG, JPG (Max. 2MB)</p>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </div>
+                            <div class="mt-4 flex items-center gap-3 p-3 bg-gray-50 dark:bg-surface-dark rounded-lg border border-gray-200 dark:border-border-dark">
+                                <div class="w-12 h-12 rounded bg-cover bg-center shrink-0 bg-gray-200" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN9PVzuGlQreMs3KBs9bgwjFb-BlRD3ekwoRANFJnJqh1uIdBv77S_gfl8eGsTiV_lQdR1TPCMoFvGqW3Pv7HKp3vpGJV1FLblJN4JhYgsgfwqtkn2Lc2WztZrJUB1P9bI5YUQgthb_C8iwo9qLXPISsKK3niDIxoDYcfbiQVyj1ZNzYIio_aFe3SLbzMzxUFR8oJwIYY9eskOXXe0-EhhmxoBW95qThzxsy0todT1f_39_HXTYNZv-u6LMeCRKScFdbQGQrML0SQ')"></div>
+                                <div class="flex flex-col overflow-hidden w-full">
+                                    <p class="text-sm font-medium text-slate-900 dark:text-white truncate">varsayilan_banner.jpg</p>
+                                    <p class="text-xs text-text-secondary">Varsayılan Görsel</p>
+                                </div>
+                                <input name="image" placeholder="Görsel URL" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-3 py-2 focus:ring-1 focus:ring-primary focus:border-transparent placeholder:text-text-secondary transition-all" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sticky bottom-4 z-20 bg-[#111722] border border-[#232f48] p-4 rounded-xl shadow-2xl flex items-center justify-between lg:col-span-3">
+                        <button type="button" class="px-6 py-3 rounded-lg text-text-secondary hover:text-white hover:bg-surface-dark font-medium transition-colors" onclick="history.back()">Vazgeç</button>
+                        <div class="flex gap-4">
+                            <button type="submit" class="flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-blue-600 text-white font-semibold shadow-lg shadow-primary/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                                <span class="material-symbols-outlined">check</span>
+                                Kampanyayı Yayınla
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-        <button type="submit" class="bg-primary text-white px-4 py-2 rounded w-full mt-2">Güncelle</button>
-    </form>
-    <a href="/admin" class="text-sm text-primary">Yönetici paneline dön</a>
+    </main>
 </div>
-</body>
-</html>
+
+</body></html>

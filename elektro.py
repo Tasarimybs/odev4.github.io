@@ -1,27 +1,81 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+# Ana sayfa route'u eklendi (tanım dosyanın altına taşındı)
+# -------------------------------------------------------
+# IMPORTS
+# -------------------------------------------------------
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
 # -------------------------------------------------------
 # APP & DATABASE SETUP
 # -------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-app = Flask(__name__, instance_path=os.path.join(os.path.dirname(__file__), 'instance'))
+app = Flask(__name__, instance_path=os.path.join(BASE_DIR, "instance"))
 app.secret_key = "supersecret"
 
-db_path = os.path.join(app.instance_path, 'site.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db_path = os.path.join(app.instance_path, "site.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+# -----------------------------------------------
+# ADMIN AUTH CONFIG
+# -----------------------------------------------
+ALLOWED_ADMINS = {
+    "caglar@gmail.com": "12345",
+    "korhan@gmail.com": "12345",
+    "cagber@gmail.com": "12345",
+}
+
+def _is_admin_path(path: str) -> bool:
+    return path.startswith("/admin") and not path.startswith("/admin/giris")
+
+@app.before_request
+def _require_admin_login():
+    if _is_admin_path(request.path):
+        if not session.get("admin_logged"):
+            next_url = request.url
+            return redirect(url_for("admin_login", next=next_url))
+
+@app.route("/admin/giris", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        email = (request.form.get("email") or "").strip().lower()
+        password = request.form.get("password") or ""
+        if ALLOWED_ADMINS.get(email) == password:
+            session["admin_logged"] = True
+            session["user_name"] = (email.split("@")[0].capitalize())
+            next_url = request.args.get("next")
+            return redirect(next_url or url_for("admin"))
+        flash("Geçersiz e-posta veya şifre.")
+        return render_template("admingiriş.html")
+    if session.get("admin_logged"):
+        return redirect(url_for("admin"))
+    return render_template("admingiriş.html")
+
+@app.route("/logout")
+def logout():
+    # If an admin session is present, send to admin login; otherwise go to home
+    is_admin = session.get("admin_logged") is True
+    session.clear()
+    return redirect(url_for("admin_login")) if is_admin else redirect(url_for("home"))
+
+
+@app.route("/logout-home")
+def logout_home():
+    # Her zaman ana sayfaya yönlendirerek çıkış yap
+    session.clear()
+    return redirect(url_for("home"))
 
 
 # -------------------------------------------------------
 # MODELLER
 # -------------------------------------------------------
-
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -30,10 +84,10 @@ class User(db.Model):
     phone = db.Column(db.String(20))
     address = db.Column(db.String(300))
     created_at = db.Column(db.DateTime, default=datetime.now)
-    
+
     def set_password(self, password):
         self.password = generate_password_hash(password)
-    
+
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
@@ -42,7 +96,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     image = db.Column(db.String(300))
-    products = db.relationship('Product', backref='category', lazy=True)
+    products = db.relationship("Product", backref="category", lazy=True)
 
 
 class Product(db.Model):
@@ -51,7 +105,7 @@ class Product(db.Model):
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Integer, nullable=False)
     image = db.Column(db.String(255))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"))
 
 
 class Message(db.Model):
@@ -70,20 +124,16 @@ class AboutPage(db.Model):
 
 class ContactInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
+    name = db.Column(db.String(100))
+    email = db.Column(db.String(120))
     phone = db.Column(db.String(30))
     address = db.Column(db.String(200))
 
 
-# -------------------------------------------------------
-# KAMPANYA MODELLERİ
-# -------------------------------------------------------
-
 campaign_products = db.Table(
-    'campaign_products',
-    db.Column('campaign_id', db.Integer, db.ForeignKey('campaign.id')),
-    db.Column('product_id', db.Integer, db.ForeignKey('product.id'))
+    "campaign_products",
+    db.Column("campaign_id", db.Integer, db.ForeignKey("campaign.id")),
+    db.Column("product_id", db.Integer, db.ForeignKey("product.id"))
 )
 
 
@@ -92,206 +142,48 @@ class Campaign(db.Model):
     title = db.Column(db.String(200), nullable=False)
     subtitle = db.Column(db.String(400))
     image = db.Column(db.String(400))
-    discount_text = db.Column(db.String(100))
     percent_discount = db.Column(db.Integer)
     min_cart_total = db.Column(db.Integer)
-    free_shipping = db.Column(db.Boolean, default=False)
     starts_at = db.Column(db.DateTime)
     ends_at = db.Column(db.DateTime)
     active = db.Column(db.Boolean, default=True)
 
     products = db.relationship(
-        'Product',
+        "Product",
         secondary=campaign_products,
-        backref=db.backref('campaigns', lazy='dynamic')
+        backref=db.backref("campaigns", lazy="dynamic")
     )
 
 
-# -------------------------------------------------------
-# SESSION SEPET
-# -------------------------------------------------------
+class FeaturedItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
+    slot = db.Column(db.String(32))
+    sort_order = db.Column(db.Integer, default=1)
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
+
+class CartItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
+    quantity = db.Column(db.Integer, default=1)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+
+
+# -------------------------------------------------------
+# SEPET HELPER
+# -------------------------------------------------------
 def get_sepet():
     return session.get("sepet", [])
+
 
 def set_sepet(data):
     session["sepet"] = data
 
 
 # -------------------------------------------------------
-# SEED & DATABASE INITIALIZE
-# -------------------------------------------------------
-
-def create_tables_and_seed():
-    db.create_all()
-
-    # İlk kategori ekleme
-    if not Category.query.first():
-        cat1 = Category(name='Telefonlar', image='url1')
-        cat2 = Category(name='Kulaklıklar', image='url2')
-        cat3 = Category(name='Tabletler', image='url3')
-        cat4 = Category(name='Televizyonlar', image='url4')
-        db.session.add_all([cat1, cat2, cat3, cat4])
-        db.session.commit()
-
-    # İlk ürünler
-    if not Product.query.first():
-        # Telefon Serisi (X1, X2, X3, X4)
-        p1 = Product(name='Akıllı Telefon X1', description='6.7" OLED ekran, 128GB depolama, 5000mAh batarya, 50MP kamera', price=24999, image='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80', category_id=1)
-        p2 = Product(name='Akıllı Telefon X2 Pro', description='6.8" AMOLED ekran, 256GB depolama, 5500mAh batarya, 108MP kamera, 120Hz', price=34999, image='https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80', category_id=1)
-        p3 = Product(name='Akıllı Telefon X3 Ultra', description='6.9" Dynamic AMOLED ekran, 512GB depolama, 6000mAh batarya, 200MP kamera', price=44999, image='https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&q=80', category_id=1)
-        p4 = Product(name='Akıllı Telefon X4 Max', description='7.0" LTPO AMOLED ekran, 1TB depolama, 6500mAh batarya, AI destekli 200MP kamera', price=54999, image='https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&q=80', category_id=1)
-        
-        # Kulaklıklar
-        p5 = Product(name='Pro Kulaklık ANC', description='Aktif gürültü engelleme, 30 saat batarya, premium ses kalitesi', price=4799, image='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80', category_id=2)
-        p6 = Product(name='Gaming Kulaklık RGB', description='7.1 surround ses, RGB aydınlatma, rahat kulak yastıkları', price=3299, image='https://images.unsplash.com/photo-1487215078519-e21cc028cb29?w=800&q=80', category_id=2)
-        
-        # Laptop & Tabletler
-        p7 = Product(name='Ultra Laptop Pro', description='15.6" 4K ekran, Intel i9, 32GB RAM, RTX 4070, 1TB SSD', price=38500, image='https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80', category_id=3)
-        p8 = Product(name='Pro Tablet 12"', description='12.9" Retina ekran, M2 chip, 256GB, Apple Pencil desteği', price=28999, image='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=80', category_id=3)
-        
-        # Televizyonlar
-        p9 = Product(name='4K Smart TV 55"', description='55" QLED ekran, HDR10+, 120Hz, Smart TV özellikleri', price=19899, image='https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80', category_id=4)
-        p10 = Product(name='8K Smart TV 65"', description='65" Neo QLED ekran, 8K AI upscaling, Dolby Atmos', price=45999, image='https://images.unsplash.com/photo-1601944177325-f8867652837f?w=800&q=80', category_id=4)
-        
-        db.session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
-        db.session.commit()
-
-    # Kampanya
-    if not Campaign.query.first():
-        now = datetime.utcnow()
-        c1 = Campaign(
-            title="24 Saatlik İndirim",
-            subtitle="Seçili ürünlerde %20 indirim",
-            percent_discount=20,
-            image='https://images.unsplash.com/photo-1607082349566-187342175e2f?w=600&q=80',
-            starts_at=now,
-            ends_at=now + timedelta(days=1)
-        )
-        c2 = Campaign(
-            title="Teknoloji Festivali",
-            subtitle="Tüm elektronik ürünlerde büyük fırsatlar",
-            percent_discount=30,
-            image='https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&q=80',
-            min_cart_total=1000,
-            starts_at=now,
-            ends_at=now + timedelta(days=7)
-        )
-        c3 = Campaign(
-            title="Yaz İndirimi",
-            subtitle="Telefon ve tablet modellerinde özel fiyatlar",
-            percent_discount=25,
-            image='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80',
-            min_cart_total=500,
-            starts_at=now,
-            ends_at=now + timedelta(days=5)
-        )
-        db.session.add_all([c1, c2, c3])
-        db.session.commit()
-
-        # İlk iki ürünü kampanyaya ekle
-        products = Product.query.limit(2).all()
-        c1.products.extend(products)
-        db.session.commit()
-
-
-with app.app_context():
-    create_tables_and_seed()
-
-
-# -------------------------------------------------------
-# KULLANıCı ROTLARI (AUTH)
-# -------------------------------------------------------
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password = request.form.get("password")
-        password_confirm = request.form.get("password_confirm")
-        
-        if not name or not email or not password:
-            flash("Tüm alanları doldurmanız gerekiyor!", "error")
-            return redirect(url_for("register"))
-        
-        if password != password_confirm:
-            flash("Şifreler eşleşmiyor!", "error")
-            return redirect(url_for("register"))
-        
-        if User.query.filter_by(email=email).first():
-            flash("Bu e-posta adresi zaten kullanılıyor!", "error")
-            return redirect(url_for("register"))
-        
-        user = User(name=name, email=email)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        
-        flash("Kayıt başarılı! Lütfen giriş yapınız.", "success")
-        return redirect(url_for("login"))
-    
-    return render_template("register.html", sepet_urun_sayisi=len(get_sepet()))
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        
-        user = User.query.filter_by(email=email).first()
-        
-        if user and user.check_password(password):
-            session["user_id"] = user.id
-            session["user_name"] = user.name
-            flash(f"Hoş geldiniz, {user.name}!", "success")
-            return redirect(url_for("home"))
-        else:
-            flash("E-posta veya şifre hatalı!", "error")
-    
-    return render_template("login.html", sepet_urun_sayisi=len(get_sepet()))
-
-
-@app.route("/profil")
-def profil():
-    user_id = session.get("user_id")
-    if not user_id:
-        flash("Lütfen önce giriş yapınız!", "error")
-        return redirect(url_for("login"))
-    
-    user = User.query.get(user_id)
-    return render_template("profil.html", user=user, sepet_urun_sayisi=len(get_sepet()))
-
-
-@app.route("/profil-guncelle", methods=["POST"])
-def profil_guncelle():
-    user_id = session.get("user_id")
-    if not user_id:
-        flash("Lütfen önce giriş yapınız!", "error")
-        return redirect(url_for("login"))
-    
-    user = User.query.get(user_id)
-    user.name = request.form.get("name", user.name)
-    user.phone = request.form.get("phone", user.phone)
-    user.address = request.form.get("address", user.address)
-    
-    db.session.commit()
-    flash("Profil başarıyla güncellendi!", "success")
-    return redirect(url_for("profil"))
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Başarıyla çıkış yaptınız!", "success")
-    return redirect(url_for("home"))
-
-
-# -------------------------------------------------------
-# SAYFA ROTLARI
-# -------------------------------------------------------
-
+# HOME
 @app.route("/")
 def home():
     return render_template(
@@ -302,17 +194,26 @@ def home():
     )
 
 
+@app.route("/hakkimizda")
+def hakkimizda():
+    return render_template(
+        "hakkimizda.html",
+        about=AboutPage.query.first(),
+        sepet_urun_sayisi=len(get_sepet())
+    )
+
+# -------------------------------------------------------
+# PUBLIC PAGES
+# -------------------------------------------------------
 @app.route("/ara")
 def ara():
-    q = request.args.get("q", "").strip()
+    q = request.args.get("q", "")
     if q:
         urunler = Product.query.filter(
-            (Product.name.ilike(f"%{q}%")) | 
-            (Product.description.ilike(f"%{q}%"))
+            (Product.name.ilike(f"%{q}%")) | (Product.description.ilike(f"%{q}%"))
         ).all()
     else:
-        urunler = []
-    
+        urunler = Product.query.all()
     return render_template(
         "home.html",
         urunler=urunler,
@@ -324,568 +225,786 @@ def ara():
 
 @app.route("/kampanyalar")
 def kampanyalar():
-    active = Campaign.query.filter_by(active=True).all()
-    kamp_list = []
-    now = datetime.utcnow()
-
-    for k in active:
-        ends_at = k.ends_at
-        kamp_list.append({
-            "id": k.id,
-            "title": k.title,
-            "subtitle": k.subtitle,
-            "image": k.image,
-            "percent_discount": k.percent_discount,
-            "min_cart_total": k.min_cart_total,
-            "ends_at": ends_at.isoformat() if ends_at else None,
-            "is_24h": bool(ends_at and (ends_at - now) <= timedelta(hours=24))
-        })
-
-    # Telefon ürünlerini getir
-    telefon_urunler = Product.query.filter(
-        (Product.name.ilike('%telefon%')) | 
-        (Product.name.ilike('%phone%'))
-    ).all()
-
-    return render_template("kampanyalar.html",
-                           kampanyalar=kamp_list,
-                           urunler=telefon_urunler,
-                           sepet_urun_sayisi=len(get_sepet()))
-
-
-@app.route("/hakkimizda")
-def hakkimizda():
-    return render_template("hakkimizda.html",
-                           about=AboutPage.query.first(),
-                           sepet_urun_sayisi=len(get_sepet()))
+    return render_template(
+        "kampanyalar.html",
+        kampanyalar=Campaign.query.filter_by(active=True).all(),
+        sepet_urun_sayisi=len(get_sepet())
+    )
 
 
 @app.route("/iletisim", methods=["GET", "POST"])
 def iletisim():
-    contact = ContactInfo.query.first()
-
     if request.method == "POST":
-        db.session.add(Message(
-            name=request.form["name"],
-            email=request.form["email"],
-            message=request.form["message"]
-        ))
-        db.session.commit()
+        name = request.form.get("name")
+        email = request.form.get("email")
+        message_text = request.form.get("message")
+        if name and email and message_text:
+            msg = Message(name=name, email=email, message=message_text)
+            db.session.add(msg)
+            db.session.commit()
+            flash("Mesajınız alındı", "success")
+        else:
+            flash("Lütfen tüm alanları doldurun", "error")
         return redirect(url_for("iletisim"))
+    return render_template(
+        "iletisim.html",
+        sepet_urun_sayisi=len(get_sepet())
+    )
 
-    return render_template("iletisim.html",
-                           contact=contact,
-                           sepet_urun_sayisi=len(get_sepet()))
+
+def _build_sepet_urunler():
+    sepet_raw = get_sepet() or []
+    urunler = []
+    normalized = []
+
+    def _to_static_url(path_like: str):
+        try:
+            rel = str(path_like).lstrip("/")
+            if rel.startswith("static/"):
+                rel = rel[len("static/"):]
+            return url_for("static", filename=rel)
+        except Exception:
+            return "https://via.placeholder.com/300x225?text=G%C3%B6rsel+Yok"
+
+    for item in sepet_raw:
+        pid = None
+        adet = 1
+        item_img = None
+        if isinstance(item, int):
+            pid = item
+            adet = 1
+        elif isinstance(item, dict):
+            pid = item.get("id")
+            adet = item.get("adet", 1)
+            item_img = item.get("img")
+        else:
+            continue
+
+        try:
+            pid = int(pid)
+        except (TypeError, ValueError):
+            continue
+        if not pid:
+            continue
+
+        p = Product.query.get(pid)
+        if not p:
+            continue
+
+        raw_img = item_img or (p.image or None)
+        if raw_img:
+            if str(raw_img).startswith("http://") or str(raw_img).startswith("https://"):
+                img_url = raw_img
+            else:
+                img_url = _to_static_url(raw_img)
+        else:
+            img_url = "https://via.placeholder.com/300x225?text=G%C3%B6rsel+Yok"
+
+        urunler.append({
+            "id": p.id,
+            "name": (p.name or f"Ürün #{p.id}"),
+            "description": (p.description or ""),
+            "price": (p.price or 0),
+            "image": img_url,
+            "quantity": adet,
+        })
+
+        norm_entry = {"id": pid, "adet": adet}
+        if raw_img:
+            norm_entry["img"] = raw_img
+        normalized.append(norm_entry)
+
+    set_sepet(normalized)
+    return urunler
+
+
+@app.route("/sepet")
+def sepet():
+    sepet_urunler = _build_sepet_urunler()
+    subtotal = sum((u.get("price", 0) or 0) * (u.get("quantity", 0) or 0) for u in sepet_urunler)
+    applied_info = {}
+    toplam_fiyat = subtotal
+    # Basit kampanya indirimi: aktif yüzde indirimli ilk kampanyayı uygula
+    active_campaign = Campaign.query.filter_by(active=True).order_by(Campaign.starts_at.desc()).first()
+    if active_campaign and active_campaign.percent_discount:
+        discount_amount = round(subtotal * (active_campaign.percent_discount / 100.0), 2)
+        if discount_amount > 0:
+            applied_info = {
+                "campaign": active_campaign.title,
+                "discount_amount": discount_amount,
+            }
+            toplam_fiyat = max(0, subtotal - discount_amount)
+    # Benzer ürünler: sepetteki ürünlerle aynı kategoriden veya sepette olmayan son eklenen ürünlerden öneriler
+    similar_products = []
+    try:
+        cart_ids = [u["id"] for u in sepet_urunler]
+        # Try to infer first product's category
+        first_pid = cart_ids[0] if cart_ids else None
+        cat_id = None
+        if first_pid:
+            p0 = Product.query.get(first_pid)
+            cat_id = p0.category_id if p0 else None
+        query = Product.query
+        if cat_id:
+            query = query.filter(Product.category_id == cat_id)
+        if cart_ids:
+            query = query.filter(~Product.id.in_(cart_ids))
+        # Fallback: if category filter yields none, lift category filter
+        candidates = query.order_by(Product.id.desc()).limit(6).all()
+        if not candidates:
+            q2 = Product.query
+            if cart_ids:
+                q2 = q2.filter(~Product.id.in_(cart_ids))
+            candidates = q2.order_by(Product.id.desc()).limit(6).all()
+        for p in candidates:
+            if p.image:
+                if str(p.image).startswith("http://") or str(p.image).startswith("https://"):
+                    img_url = p.image
+                else:
+                    try:
+                        rel_path = str(p.image).lstrip("/")
+                        if rel_path.startswith("static/"):
+                            rel_path = rel_path[len("static/"):]
+                        img_url = url_for('static', filename=rel_path)
+                    except Exception:
+                        img_url = "https://via.placeholder.com/300x225?text=G%C3%B6rsel+Yok"
+            else:
+                img_url = "https://via.placeholder.com/300x225?text=G%C3%B6rsel+Yok"
+            similar_products.append({
+                "id": p.id,
+                "name": p.name or f"Ürün #{p.id}",
+                "price": p.price,
+                "image": img_url,
+            })
+    except Exception:
+        similar_products = []
+    return render_template(
+        "sepet.html",
+        sepet_urunler=sepet_urunler,
+        subtotal=subtotal,
+        toplam_fiyat=toplam_fiyat,
+        applied_info=applied_info,
+        similar_products=similar_products,
+        sepet_urun_sayisi=len(get_sepet())
+    )
+
+
+@app.route("/sepete-ekle", methods=["POST"])
+def sepete_ekle():
+    urun_id = request.form.get("urun_id", type=int)
+    p = Product.query.get(urun_id) if urun_id else None
+    if not urun_id or not p:
+        flash("Ürün bulunamadı", "error")
+        return redirect(url_for("home"))
+    sepet = get_sepet() or []
+    found = False
+    for idx, item in enumerate(sepet):
+        if isinstance(item, int) and item == urun_id:
+            sepet[idx] = {"id": urun_id, "adet": 2, "img": (p.image or None)}  # convert int to dict and increment
+            found = True
+            break
+        elif isinstance(item, dict) and item.get("id") == urun_id:
+            item["adet"] = item.get("adet", 1) + 1
+            # ensure image is present
+            if not item.get("img"):
+                item["img"] = p.image or None
+            found = True
+            break
+    if not found:
+        sepet.append({"id": urun_id, "adet": 1, "img": (p.image or None)})
+    set_sepet(sepet)
+    flash("Ürün sepete eklendi", "success")
+    # Eklemeden sonra geldiği sayfada kal (bildirim göster)
+    return redirect(request.referrer or url_for("home"))
+
+
+@app.route("/api/sepet-arttir", methods=["POST"])
+def api_sepet_arttir():
+    urun_id = request.form.get("urun_id", type=int)
+    if not urun_id:
+        return jsonify({"ok": False, "message": "Geçersiz ürün"}), 400
+    p = Product.query.get(urun_id)
+    if not p:
+        return jsonify({"ok": False, "message": "Ürün bulunamadı"}), 404
+    sepet = get_sepet() or []
+    updated = False
+    for item in sepet:
+        if isinstance(item, dict) and item.get("id") == urun_id:
+            item["adet"] = item.get("adet", 1) + 1
+            if not item.get("img") and p.image:
+                item["img"] = p.image
+            updated = True
+            break
+        if isinstance(item, int) and item == urun_id:
+            # Eski format: int → dict'e çevir ve 2 yap
+            idx = sepet.index(item)
+            sepet[idx] = {"id": urun_id, "adet": 2, "img": (p.image or None)}
+            updated = True
+            break
+    if not updated:
+        sepet.append({"id": urun_id, "adet": 1, "img": (p.image or None)})
+    set_sepet(sepet)
+    sepet_urunler = _build_sepet_urunler()
+    subtotal = sum(u["fiyat"] * u["adet"] for u in sepet_urunler)
+    return jsonify({
+        "ok": True,
+        "sepet_urun_sayisi": len(get_sepet()),
+        "subtotal": subtotal,
+    })
+
+
+@app.route("/api/sepet-azalt", methods=["POST"])
+def api_sepet_azalt():
+    urun_id = request.form.get("urun_id", type=int)
+    if not urun_id:
+        return jsonify({"ok": False, "message": "Geçersiz ürün"}), 400
+    sepet = get_sepet() or []
+    for item in sepet:
+        if isinstance(item, dict) and item.get("id") == urun_id:
+            current = item.get("adet", 1)
+            item["adet"] = max(1, current - 1)
+            break
+        if isinstance(item, int) and item == urun_id:
+            # int ise 1 kabul edilir; azaltınca yine 1'de kalır
+            break
+    set_sepet(sepet)
+    sepet_urunler = _build_sepet_urunler()
+    subtotal = sum(u["fiyat"] * u["adet"] for u in sepet_urunler)
+    return jsonify({
+        "ok": True,
+        "sepet_urun_sayisi": len(get_sepet()),
+        "subtotal": subtotal,
+    })
+
+
+@app.route("/sepetten-sil", methods=["POST"])
+def sepetten_sil():
+    urun_id = request.form.get("urun_id", type=int)
+    sepet_raw = get_sepet() or []
+    sepet = []
+    for i in sepet_raw:
+        pid = i if isinstance(i, int) else (i.get("id") if isinstance(i, dict) else None)
+        if pid is None or pid != urun_id:
+            sepet.append(i if isinstance(i, dict) else {"id": i, "adet": 1})
+    set_sepet(sepet)
+    flash("Ürün sepetten kaldırıldı", "success")
+    return redirect(url_for("sepet"))
 
 
 @app.route("/urun/<int:urun_id>")
 def urun_detay(urun_id):
     urun = Product.query.get_or_404(urun_id)
-    
-    # Aynı kategoriden benzer ürünler
-    benzer_urunler = Product.query.filter(
-        Product.category_id == urun.category_id,
-        Product.id != urun_id
-    ).limit(4).all()
-    
-    return render_template("urun_detay.html",
-                           urun=urun,
-                           benzer_urunler=benzer_urunler,
-                           sepet_urun_sayisi=len(get_sepet()))
+    return render_template(
+        "urun_detay.html",
+        urun=urun,
+        sepet_urun_sayisi=len(get_sepet())
+    )
+
+
+@app.route("/profil")
+def profil():
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Lütfen giriş yapın", "error")
+        return redirect(url_for("login"))
+    user = User.query.get_or_404(user_id)
+    return render_template(
+        "profil.html",
+        user=user,
+        sepet_urun_sayisi=len(get_sepet())
+    )
+
+
+@app.route("/profil-guncelle", methods=["POST"])
+def profil_guncelle():
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("Lütfen giriş yapın", "error")
+        return redirect(url_for("login"))
+    user = User.query.get_or_404(user_id)
+    user.name = request.form.get("name", user.name)
+    user.phone = request.form.get("phone", user.phone)
+    user.address = request.form.get("address", user.address)
+    db.session.commit()
+    flash("Profil güncellendi", "success")
+    return redirect(url_for("profil"))
 
 
 # -------------------------------------------------------
-# SEPET (SESSION)
+# AUTH
 # -------------------------------------------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        user = User(
+            name=request.form["name"],
+            email=request.form["email"]
+        )
+        user.set_password(request.form["password"])
+        db.session.add(user)
+        db.session.commit()
+        flash("Kayıt başarılı", "success")
+        return redirect(url_for("login"))
+    return render_template("register.html")
 
-@app.route("/sepet")
-def sepet():
-    ids = get_sepet()
-    db_items = Product.query.filter(Product.id.in_(ids)).all()
 
-    subtotal = sum([i.price for i in db_items])
-    sepet_ids = [i.id for i in db_items]
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = User.query.filter_by(email=request.form["email"]).first()
+        if user and user.check_password(request.form["password"]):
+            session["user_id"] = user.id
+            return redirect(url_for("home"))
+        flash("Hatalı giriş", "error")
+    return render_template("login.html")
 
-    now = datetime.utcnow()
-    applicable = []
 
-    for kamp in Campaign.query.filter_by(active=True).all():
+# Removed duplicate logout; using single definition earlier that redirects to admin login
 
-        if kamp.starts_at and kamp.starts_at > now:
-            continue
-        if kamp.ends_at and kamp.ends_at < now:
-            continue
 
-        applies = False
+# -------------------------------------------------------
+# ADMIN PANEL
+# -------------------------------------------------------
+@app.route("/admin")
+def admin():
+    return render_template(
+        "admin.html",
+        urunler=Product.query.all(),
+        products=Product.query.all(),
+        kategoriler=Category.query.all(),
+        kampanyalar=Campaign.query.all(),
+        about=AboutPage.query.first()
+    )
 
-        if kamp.min_cart_total and subtotal >= kamp.min_cart_total:
-            applies = True
 
-        if kamp.products:
-            k_products = [p.id for p in kamp.products]
-            if any(pid in k_products for pid in sepet_ids):
-                applies = True
+@app.route("/admin/hakkimizda", methods=["GET"])
+def admin_hakkimizda():
+    about = AboutPage.query.first()
+    return render_template("adminhakkimizda.html", about=about)
 
-        if applies:
-            applicable.append(kamp)
 
-    best_discount = 0
-    applied_campaign = None
-    for k in applicable:
-        if k.percent_discount:
-            discount = subtotal * (k.percent_discount / 100)
-            if discount > best_discount:
-                best_discount = discount
-                applied_campaign = k
-
-    toplam = subtotal - best_discount
-
-    if applied_campaign:
-        applied_info = {
-            'campaign': applied_campaign.title,
-            'discount_amount': int(best_discount)
-        }
+@app.route("/admin/hakkimizda-guncelle", methods=["POST"])
+def admin_hakkimizda_guncelle():
+    about = AboutPage.query.first()
+    if not about:
+        about = AboutPage(
+            title=request.form["title"],
+            content=request.form["content"]
+        )
+        db.session.add(about)
     else:
-        applied_info = {}
+        about.title = request.form["title"]
+        about.content = request.form["content"]
 
-    # Benzer ürünler öner
-    similar_products = []
-    if db_items:
-        first_cat = db_items[0].category_id
-        similar_products = Product.query.filter(
-            Product.category_id == first_cat,
-            ~Product.id.in_(sepet_ids)
-        ).limit(3).all()
+    db.session.commit()
+    flash("Hakkımızda güncellendi", "success")
+    return redirect(url_for("admin_hakkimizda"))
+# -------------------------------------------------------
+# ADMIN PROFILES
+# -------------------------------------------------------
+@app.route("/admin/profiller")
+def admin_profiller():
+    q = request.args.get("q", "")
+    page = request.args.get("page", default=1, type=int)
+    per_page = request.args.get("per_page", default=10, type=int)
+
+    query = User.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            (User.name.ilike(like)) |
+            (User.email.ilike(like)) |
+            (User.phone.ilike(like))
+        )
+
+    total_users = query.count()
+    users = query.order_by(User.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+
+    # Stats
+    now = datetime.now()
+    start_of_month = datetime(now.year, now.month, 1)
+    new_users_this_month = User.query.filter(User.created_at >= start_of_month).count()
+
+    # Pagination info
+    total_pages = (total_users + per_page - 1) // per_page if per_page > 0 else 1
+    start = (page - 1) * per_page + 1 if total_users > 0 else 0
+    end = min(page * per_page, total_users)
+
+    def _page_url(n):
+        args = request.args.to_dict()
+        args.update({"page": n, "per_page": per_page})
+        return url_for("admin_profiller", **args)
+
+    pages = [{"number": n, "url": _page_url(n), "active": (n == page)} for n in range(1, max(total_pages, 1) + 1)]
+    pagination = {
+        "total": total_users,
+        "start": start,
+        "end": end,
+        "prev_url": _page_url(max(page - 1, 1)),
+        "next_url": _page_url(min(page + 1, max(total_pages, 1))),
+        "pages": pages,
+    }
 
     return render_template(
-        "sepet.html",
-        sepet_urunler=db_items,
-        subtotal=subtotal,
-        indirim=best_discount,
-        toplam_fiyat=int(toplam),
-        sepet_urun_sayisi=len(ids),
-        applied_info=applied_info,
-        similar_products=similar_products
+        "admin_profiller.html",
+        users=users,
+        total_users=total_users,
+        new_users_this_month=new_users_this_month,
+        pagination=pagination,
     )
 
 
-@app.route("/sepete-ekle", methods=["POST"])
-def sepete_ekle():
-    pid = int(request.form["urun_id"])
-    sepet = get_sepet()
-
-    if pid not in sepet:
-        sepet.append(pid)
-        urun = Product.query.get(pid)
-        if urun:
-            flash(f'{urun.name} sepetinize eklendi!', 'success')
-    else:
-        flash('Bu ürün zaten sepetinizde!', 'info')
-
-    set_sepet(sepet)
-    
-    # Referrer'a göre yönlendirme
-    referrer = request.referrer
-    if referrer and '/urun/' in referrer:
-        return redirect(referrer)
-    return redirect(url_for("home"))
-
-
-@app.route("/sepetten-sil", methods=["POST"])
-def sepetten_sil():
-    pid = int(request.form["urun_id"])
-    sepet = get_sepet()
-
-    if pid in sepet:
-        sepet.remove(pid)
-
-    set_sepet(sepet)
-    return redirect(url_for("sepet"))
+@app.route("/admin/profiller/export")
+def admin_profiller_export():
+    import csv
+    from io import StringIO
+    buf = StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["id", "name", "email", "phone", "address", "created_at"])
+    for u in User.query.order_by(User.created_at.desc()).all():
+        writer.writerow([
+            u.id,
+            u.name,
+            u.email,
+            u.phone or "",
+            (u.address or "").replace("\n", " "),
+            u.created_at.strftime('%Y-%m-%d %H:%M:%S') if u.created_at else ""
+        ])
+    csv_data = buf.getvalue()
+    return Response(csv_data, mimetype="text/csv", headers={
+        "Content-Disposition": "attachment; filename=profiller.csv"
+    })
 
 
 # -------------------------------------------------------
-# ADMIN PANEL
+# ADMIN MESSAGES
 # -------------------------------------------------------
-
-@app.route("/admin")
-def admin():
-    return render_template("admin.html",
-                           urunler=Product.query.all(),
-                           kategoriler=Category.query.all(),
-                           kampanyalar=Campaign.query.all())
-
-
-# -------------------------------------------------------
-# RUN
-# -------------------------------------------------------
-
-if __name__ == "__main__":
-    app.run(debug=True)
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import os
-
-app = Flask(__name__, instance_path=os.path.join(os.path.dirname(__file__), 'instance'))
-app.secret_key = "supersecret"
-
-db_path = os.path.join(app.instance_path, 'site.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+@app.route("/admin/mesajlar")
+def admin_mesajlar():
+    q = request.args.get("q", "")
+    query = Message.query
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            (Message.name.ilike(like)) |
+            (Message.email.ilike(like)) |
+            (Message.message.ilike(like))
+        )
+    messages = query.order_by(Message.created_at.desc()).all()
+    return render_template("adminmesaj.html", messages=messages)
 
 
-# -------------------------------------------------------
-# MODELLER
-# -------------------------------------------------------
-
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(300))
-    products = db.relationship('Product', backref='category', lazy=True)
-
-
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    price = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.String(255))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
-
-
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now)
-
-
-class AboutPage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-
-
-class ContactInfo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(30))
-    address = db.Column(db.String(200))
-
-
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import os
-
-app = Flask(__name__, instance_path=os.path.join(os.path.dirname(__file__), 'instance'))
-app.secret_key = "supersecret"
-
-db_path = os.path.join(app.instance_path, 'site.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+@app.route("/admin/mesajlar/export")
+def admin_mesajlar_export():
+    import csv
+    from io import StringIO
+    buf = StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["id", "name", "email", "message", "created_at"])
+    for m in Message.query.order_by(Message.created_at.desc()).all():
+        writer.writerow([
+            m.id,
+            m.name,
+            m.email,
+            m.message.replace("\n", " ") if m.message else "",
+            m.created_at.strftime('%Y-%m-%d %H:%M:%S') if m.created_at else ""
+        ])
+    csv_data = buf.getvalue()
+    return Response(csv_data, mimetype="text/csv", headers={
+        "Content-Disposition": "attachment; filename=mesajlar.csv"
+    })
 
 
 # -------------------------------------------------------
-# MODELLER
+# ADMIN FEATURED/VITRIN
 # -------------------------------------------------------
+@app.route("/admin/vitrin/ekle", methods=["POST"])
+def admin_vitrin_ekle():
+    try:
+        product_id = request.form.get("product_id", type=int)
+        category = (request.form.get("category") or "").strip()  # vitrinde kullanılacak slot/kategori
+        sort_order = request.form.get("sort_order", type=int) or 1
+        price = request.form.get("price", type=float)
+        image = request.form.get("image")
+        name = (request.form.get("name") or "").strip()
 
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(300))
-    products = db.relationship('Product', backref='category', lazy=True)
+        if not product_id or not category:
+            flash("Ürün ID ve kategori zorunludur.", "error")
+            return redirect(url_for("admin"))
 
+        # Kategori kodunu görsel isimlendirmeyle eşleştir
+        def _category_display_name(code: str) -> str:
+            mapping = {
+                "telefonlar": "Telefonlar",
+                "televizyonlar": "Televizyonlar",
+                "bilgisayarlar": "Bilgisayarlar",
+                "tabletler": "Tabletler",
+                "kulakliklar": "Kulaklıklar",
+            }
+            return mapping.get((code or "").lower(), code.title())
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    price = db.Column(db.Integer, nullable=False)
-    image = db.Column(db.String(255))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+        # Kategori var mı? Yoksa oluştur
+        cat_name = _category_display_name(category)
+        cat_obj = Category.query.filter_by(name=cat_name).first()
+        if not cat_obj:
+            cat_obj = Category(name=cat_name)
+            db.session.add(cat_obj)
+            db.session.flush()  # id almak için commit etmeden flush yeter
 
+        p = Product.query.get(product_id)
+        if not p:
+            # Ürün yoksa oluştur
+            p = Product(
+                id=product_id,
+                name=(name or f"urun {product_id}"),
+                description="",
+                price=int(round(price or 0)) if price is not None else 0,
+                image=image or None,
+                category_id=cat_obj.id,
+            )
+            db.session.add(p)
+        else:
+            # Ürün varsa opsiyonel güncellemeler
+            if name:
+                p.name = name
+            if price is not None:
+                try:
+                    p.price = int(price)
+                except Exception:
+                    p.price = int(round(price or 0))
+            if image:
+                p.image = image
+            if cat_obj and (p.category_id != cat_obj.id):
+                p.category_id = cat_obj.id
+            db.session.add(p)
 
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), nullable=False)
-    message = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+        # Aynı product + slot varsa sırasını güncelle, yoksa ekle
+        existing = FeaturedItem.query.filter_by(product_id=product_id, slot=category).first()
+        if existing:
+            existing.sort_order = sort_order
+            db.session.add(existing)
+        else:
+            fi = FeaturedItem(product_id=product_id, slot=category, sort_order=sort_order)
+            db.session.add(fi)
 
-
-class AboutPage(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-
-
-class ContactInfo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(30))
-    address = db.Column(db.String(200))
-
-
-campaign_products = db.Table(
-    'campaign_products',
-    db.Column('campaign_id', db.Integer, db.ForeignKey('campaign.id')),
-    db.Column('product_id', db.Integer, db.ForeignKey('product.id'))
-)
-
-
-class Campaign(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    subtitle = db.Column(db.String(400))
-    image = db.Column(db.String(400))
-    discount_text = db.Column(db.String(100))
-    percent_discount = db.Column(db.Integer, nullable=True)
-    min_cart_total = db.Column(db.Integer, nullable=True)
-    free_shipping = db.Column(db.Boolean, default=False)
-    starts_at = db.Column(db.DateTime, nullable=True)
-    ends_at = db.Column(db.DateTime, nullable=True)
-    active = db.Column(db.Boolean, default=True)
-    products = db.relationship(
-        'Product', secondary=campaign_products,
-        backref=db.backref('campaigns', lazy='dynamic')
-    )
-
-
-# -------------------------------------------------------
-# SESSION SEPET
-# -------------------------------------------------------
-
-def get_sepet():
-    return session.get("sepet", [])
-
-def set_sepet(data):
-    session["sepet"] = data
-
-
-# -------------------------------------------------------
-# SEED ve TABLO OLUŞTURMA
-# -------------------------------------------------------
-
-def create_tables_and_seed():
-    db.create_all()
-
-    # Kategoriler
-    if not Category.query.first():
-        cat1 = Category(name='Telefonlar', image='url1')
-        cat2 = Category(name='Kulaklıklar', image='url2')
-        cat3 = Category(name='Tabletler', image='url3')
-        cat4 = Category(name='Televizyonlar', image='url4')
-        db.session.add_all([cat1, cat2, cat3, cat4])
         db.session.commit()
+        flash("Ürün vitrine eklendi.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("Vitrine eklenirken bir hata oluştu.", "error")
+    return redirect(url_for("admin"))
 
-    # Ürünler
-    if not Product.query.first():
-        # Telefon Serisi (X1, X2, X3, X4)
-        p1 = Product(name='Akıllı Telefon X1', description='6.7" OLED ekran, 128GB depolama, 5000mAh batarya, 50MP kamera', price=24999, image='https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80', category_id=1)
-        p2 = Product(name='Akıllı Telefon X2 Pro', description='6.8" AMOLED ekran, 256GB depolama, 5500mAh batarya, 108MP kamera, 120Hz', price=34999, image='https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80', category_id=1)
-        p3 = Product(name='Akıllı Telefon X3 Ultra', description='6.9" Dynamic AMOLED ekran, 512GB depolama, 6000mAh batarya, 200MP kamera', price=44999, image='https://images.unsplash.com/photo-1580910051074-3eb694886505?w=800&q=80', category_id=1)
-        p4 = Product(name='Akıllı Telefon X4 Max', description='7.0" LTPO AMOLED ekran, 1TB depolama, 6500mAh batarya, AI destekli 200MP kamera', price=54999, image='https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=800&q=80', category_id=1)
-        
-        # Kulaklıklar
-        p5 = Product(name='Pro Kulaklık ANC', description='Aktif gürültü engelleme, 30 saat batarya, premium ses kalitesi', price=4799, image='https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=80', category_id=2)
-        p6 = Product(name='Gaming Kulaklık RGB', description='7.1 surround ses, RGB aydınlatma, rahat kulak yastıkları', price=3299, image='https://images.unsplash.com/photo-1487215078519-e21cc028cb89?w=800&q=80', category_id=2)
-        
-        # Laptop & Tabletler
-        p7 = Product(name='Ultra Laptop Pro', description='15.6" 4K ekran, Intel i9, 32GB RAM, RTX 4070, 1TB SSD', price=38500, image='https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800&q=80', category_id=3)
-        p8 = Product(name='Pro Tablet 12"', description='12.9" Retina ekran, M2 chip, 256GB, Apple Pencil desteği', price=28999, image='https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=80', category_id=3)
-        
-        # Televizyonlar
-        p9 = Product(name='4K Smart TV 55"', description='55" QLED ekran, HDR10+, 120Hz, Smart TV özellikleri', price=19899, image='https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&q=80', category_id=4)
-        p10 = Product(name='8K Smart TV 65"', description='65" Neo QLED ekran, 8K AI upscaling, Dolby Atmos', price=45999, image='https://images.unsplash.com/photo-1601944177325-f8867652837f?w=800&q=80', category_id=4)
-        
-        db.session.add_all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
+
+@app.route("/admin/vitrin/sil", methods=["POST"])
+def admin_vitrin_sil():
+    try:
+        name = (request.form.get("product_name") or "").strip()
+        product_id = request.form.get("product_id", type=int)  # geriye dönük destek
+        p = None
+        if name:
+            p = Product.query.filter_by(name=name).first()
+        elif product_id:
+            p = Product.query.get(product_id)
+
+        if not p:
+            flash("Silinecek ürün bulunamadı.", "error")
+            return redirect(url_for("admin"))
+
+        FeaturedItem.query.filter_by(product_id=p.id).delete()
+        db.session.delete(p)
         db.session.commit()
-
-    # Kampanyalar
-    if not Campaign.query.first():
-        now = datetime.utcnow()
-        c1 = Campaign(title='24 Saatlik İndirim', subtitle='Seçili ürünler %20', percent_discount=20,
-                      starts_at=now, ends_at=now+timedelta(days=1))
-        db.session.add(c1)
-        db.session.commit()
-
-        products = Product.query.limit(2).all()
-        c1.products.extend(products)
-        db.session.commit()
-
-
-with app.app_context():
-    create_tables_and_seed()
+        flash("Ürün vitrinden ve listeden kaldırıldı.", "success")
+    except Exception:
+        db.session.rollback()
+        flash("Vitrinden kaldırma sırasında hata oluştu.", "error")
+    return redirect(url_for("admin"))
 
 
 # -------------------------------------------------------
-# SAYFA ROTLARI
+# ADMIN CAMPAIGNS
 # -------------------------------------------------------
-
-@app.route("/")
-def home():
-    urunler = Product.query.all()
+@app.route("/admin/kampanyalar", methods=["GET"])
+def admin_kampanyalar():
     kategoriler = Category.query.all()
-    return render_template("home.html",
-                           urunler=urunler,
-                           kategoriler=kategoriler,
-                           sepet_urun_sayisi=len(get_sepet()))
+    return render_template("admin_kampanya_duzenle.html", kategoriler=kategoriler)
 
 
-@app.route("/kampanyalar")
-def kampanyalar():
-    sepet_urun_sayisi = len(get_sepet())
-    kamp_list = []
+@app.route("/admin/kampanyalar/ekle", methods=["POST"])
+def admin_kampanyalar_ekle():
+    title = request.form.get("title", "").strip()
+    subtitle = request.form.get("subtitle", "").strip()
+    discount_type = request.form.get("discount_type")
+    discount_value = request.form.get("discount_value", type=float)
+    target_category = request.form.get("target_category")
+    starts_at_str = request.form.get("starts_at")
+    ends_at_str = request.form.get("ends_at")
+    image = request.form.get("image")
 
-    for k in Campaign.query.filter_by(active=True).all():
-        kamp_list.append({
-            "id": k.id,
-            "title": k.title,
-            "subtitle": k.subtitle,
-            "image": k.image,
-            "ends_at": k.ends_at.isoformat() if k.ends_at else None
+    if not title:
+        flash("Kampanya başlığı gerekli", "error")
+        return redirect(url_for("admin_kampanyalar"))
+
+    percent_discount = None
+    if discount_type == "percentage" and discount_value is not None:
+        try:
+            percent_discount = int(discount_value)
+        except (TypeError, ValueError):
+            percent_discount = None
+
+    # parse datetimes (YYYY-MM-DDTHH:MM)
+    def _parse_dt(s):
+        if not s:
+            return None
+        try:
+            return datetime.strptime(s, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            return None
+
+    starts_at = _parse_dt(starts_at_str)
+    ends_at = _parse_dt(ends_at_str)
+
+    kamp = Campaign(
+        title=title,
+        subtitle=subtitle,
+        image=image,
+        percent_discount=percent_discount,
+        starts_at=starts_at,
+        ends_at=ends_at,
+        active=True
+    )
+    db.session.add(kamp)
+    db.session.commit()
+    flash("Kampanya oluşturuldu", "success")
+    return redirect(url_for("admin"))
+
+
+# -------------------------------------------------------
+# ADMIN CARTS
+# -------------------------------------------------------
+@app.route("/admin/sepetler")
+def admin_sepetler():
+    # Aggregate CartItem entries per user
+    from collections import defaultdict
+    agg = defaultdict(lambda: {"item_count": 0, "total_amount": 0.0, "last_update": None})
+
+    items = CartItem.query.all()
+    for ci in items:
+        p = Product.query.get(ci.product_id)
+        if not p:
+            continue
+        qty = ci.quantity or 1
+        agg[ci.user_id]["item_count"] += qty
+        agg[ci.user_id]["total_amount"] += (p.price or 0) * qty
+        lu = ci.created_at
+        if lu and (agg[ci.user_id]["last_update"] is None or lu > agg[ci.user_id]["last_update"]):
+            agg[ci.user_id]["last_update"] = lu
+
+    rows = []
+    total_revenue = 0.0
+    for user_id, data in agg.items():
+        u = User.query.get(user_id) if user_id else None
+        name = (u.name if u else f"Misafir #{user_id}") if user_id is not None else "Misafir"
+        email = u.email if u else "-"
+        last_update = data["last_update"]
+        # Simple status based on recency
+        if last_update is None:
+            status = "Terk Edilmiş"
+        else:
+            delta = datetime.now() - last_update
+            if delta <= timedelta(hours=2):
+                status = "Aktif"
+            elif delta <= timedelta(days=7):
+                status = "Beklemede"
+            else:
+                status = "Terk Edilmiş"
+
+        rows.append({
+            "name": name,
+            "email": email,
+            "item_count": data["item_count"],
+            "total_amount": data["total_amount"],
+            "status": status,
+            "last_update": last_update,
         })
+        total_revenue += data["total_amount"]
 
-    return render_template("kampanyalar.html",
-                           kampanyalar=kamp_list,
-                           sepet_urun_sayisi=sepet_urun_sayisi)
+    active_count = len(rows)
+    avg_cart_total = (total_revenue / active_count) if active_count else 0.0
 
+    summary = {
+        "active_count": active_count,
+        "potential_revenue": total_revenue,
+        "avg_cart_total": avg_cart_total,
+    }
 
-@app.route("/hakkimizda")
-def hakkimizda():
-    about = AboutPage.query.first()
-    return render_template("hakkimizda.html",
-                           about=about,
-                           sepet_urun_sayisi=len(get_sepet()))
+    # Optional search by q (name or email)
+    q = request.args.get("q", "").strip().lower()
+    if q:
+        rows = [r for r in rows if q in (r["name"] or "").lower() or q in (r["email"] or "").lower()]
 
+    # Sort by last update desc
+    rows.sort(key=lambda r: r["last_update"] or datetime.min, reverse=True)
 
-@app.route("/iletisim", methods=["GET", "POST"])
-def iletisim():
-    contact = ContactInfo.query.first()
-
-    if request.method == "POST":
-        name = request.form.get("name")
-        email = request.form.get("email")
-        message = request.form.get("message")
-        db.session.add(Message(name=name, email=email, message=message))
-        db.session.commit()
-        return redirect(url_for("iletisim"))
-
-    return render_template("iletisim.html",
-                           contact=contact,
-                           sepet_urun_sayisi=len(get_sepet()))
+    return render_template("admin_sepet.html", rows=rows, summary=summary)
 
 
-# -------------------------------------------------------
-# SEPET (SESSION)
-# -------------------------------------------------------
+@app.route("/admin/sepetler/export")
+def admin_sepetler_export():
+    import csv
+    from io import StringIO
+    # Build same aggregation as listing
+    from collections import defaultdict
+    agg = defaultdict(lambda: {"item_count": 0, "total_amount": 0.0, "last_update": None})
+    items = CartItem.query.all()
+    for ci in items:
+        p = Product.query.get(ci.product_id)
+        if not p:
+            continue
+        qty = ci.quantity or 1
+        agg[ci.user_id]["item_count"] += qty
+        agg[ci.user_id]["total_amount"] += (p.price or 0) * qty
+        lu = ci.created_at
+        if lu and (agg[ci.user_id]["last_update"] is None or lu > agg[ci.user_id]["last_update"]):
+            agg[ci.user_id]["last_update"] = lu
 
-@app.route("/sepet")
-def sepet():
-    ids = get_sepet()
-    db_items = Product.query.filter(Product.id.in_(ids)).all()
-    
-    subtotal = sum([i.price for i in db_items])
-    sepet_ids = [i.id for i in db_items]
+    buf = StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(["user_id", "name", "email", "item_count", "total_amount", "last_update", "status"])
+    for user_id, data in agg.items():
+        u = User.query.get(user_id) if user_id else None
+        name = (u.name if u else f"Misafir #{user_id}") if user_id is not None else "Misafir"
+        email = u.email if u else "-"
+        last_update = data["last_update"]
+        if last_update is None:
+            status = "Terk Edilmiş"
+        else:
+            delta = datetime.now() - last_update
+            if delta <= timedelta(hours=2):
+                status = "Aktif"
+            elif delta <= timedelta(days=7):
+                status = "Beklemede"
+            else:
+                status = "Terk Edilmiş"
+        writer.writerow([
+            user_id,
+            name,
+            email,
+            data["item_count"],
+            f"{data['total_amount']:.2f}",
+            last_update.strftime('%Y-%m-%d %H:%M:%S') if last_update else "",
+            status,
+        ])
 
-    now = datetime.utcnow()
-    applicable = []
-
-    for kamp in Campaign.query.filter_by(active=True).all():
-        if kamp.starts_at and kamp.starts_at > now: continue
-        if kamp.ends_at and kamp.ends_at < now: continue
-
-        applies = False
-
-        if kamp.min_cart_total and subtotal >= kamp.min_cart_total:
-            applies = True
-
-        if kamp.products:
-            k_products = [p.id for p in kamp.products]
-            if any(pid in k_products for pid in sepet_ids):
-                applies = True
-
-        if applies:
-            applicable.append(kamp)
-
-    best_discount = 0
-
-    for k in applicable:
-        if k.percent_discount:
-            disc = subtotal * (k.percent_discount / 100)
-            best_discount = max(best_discount, disc)
-
-    toplam = subtotal - best_discount
-
-    return render_template("sepet.html",
-                           sepet_urunler=db_items,
-                           subtotal=subtotal,
-                           indirim=best_discount,
-                           toplam=toplam,
-                           sepet_urun_sayisi=len(ids))
-
-
-@app.route("/sepete-ekle", methods=["POST"])
-def sepete_ekle():
-    pid = int(request.form.get("urun_id"))
-    sepet = get_sepet()
-    if pid not in sepet:
-        sepet.append(pid)
-    set_sepet(sepet)
-    return redirect(url_for("home"))
-
-
-@app.route("/sepetten-sil", methods=["POST"])
-def sepetten_sil():
-    pid = int(request.form.get("urun_id"))
-    sepet = get_sepet()
-    if pid in sepet:
-        sepet.remove(pid)
-    set_sepet(sepet)
-    return redirect(url_for("sepet"))
-
-
-# -------------------------------------------------------
-# ADMIN PANEL
-# -------------------------------------------------------
-
-@app.route("/admin")
-def admin():
-    return render_template("admin.html",
-                           urunler=Product.query.all(),
-                           kategoriler=Category.query.all(),
-                           kampanyalar=Campaign.query.all())
+    csv_data = buf.getvalue()
+    return Response(csv_data, mimetype="text/csv", headers={
+        "Content-Disposition": "attachment; filename=sepetler.csv"
+    })
 
 
 # -------------------------------------------------------
 # RUN
 # -------------------------------------------------------
-
 if __name__ == "__main__":
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
-# SESSION SEPET
-# -------------------------------------------------------
-
-def get_sepet():
-    return session.get("sepet", [])
-
-def set_sepet(data):
-    session["sepet"] = data
-
-
-# -------------------------------------------------------
-# SEED ve TABLO OLUŞTURMA
-# -------------------------------------------------------
-
-def create_tables_and_seed():
-    db.create_all()
-
-
-
