@@ -133,6 +133,11 @@
                                     <input name="title" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary transition-all" placeholder="Örn: Büyük Yaz İndirimi - Tüm Laptoplarda %20" type="text" required/>
                                 </label>
                                 <label class="flex flex-col gap-2">
+                                    <span class="text-slate-700 dark:text-white text-sm font-medium">Kampanyalı Ürün ID</span>
+                                    <input name="product_id" id="product_id" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary transition-all" placeholder="Örn: 101" type="number"/>
+                                    <p class="text-xs text-text-secondary">İsteğe bağlı: belirli bir ürüne kampanya uygular.</p>
+                                </label>
+                                <label class="flex flex-col gap-2">
                                     <span class="text-slate-700 dark:text-white text-sm font-medium">Açıklama</span>
                                     <textarea name="subtitle" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 min-h-[140px] focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-text-secondary resize-none transition-all" placeholder="Kampanya koşulları ve detaylarını buraya giriniz..."></textarea>
                                     <p class="text-xs text-text-secondary text-right">0/500 karakter</p>
@@ -149,8 +154,8 @@
                                 <label class="flex flex-col gap-2">
                                     <span class="text-slate-700 dark:text-white text-sm font-medium">İndirim Tipi</span>
                                     <div class="relative">
-                                        <select name="discount_type" class="w-full appearance-none rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
-                                            <option value="percentage">Yüzde İndirimi (%)</option>
+                                        <select name="discount_type" id="discount_type" class="w-full appearance-none rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pr-10 focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                            <option value="percentage" selected>Yüzde İndirimi (%)</option>
                                             <option value="fixed">Sabit Tutar (₺)</option>
                                         </select>
                                         <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
@@ -161,7 +166,7 @@
                                 <label class="flex flex-col gap-2">
                                     <span class="text-slate-700 dark:text-white text-sm font-medium">İndirim Değeri</span>
                                     <div class="relative">
-                                        <input name="discount_value" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pl-4 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="20" type="number"/>
+                                        <input name="discount_value" id="discount_value" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-4 py-3 pl-4 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="20" type="number"/>
                                     </div>
                                 </label>
                                 <label class="flex flex-col gap-2 md:col-span-2">
@@ -204,40 +209,102 @@
                             </div>
                         </div>
                         <div class="bg-white dark:bg-[#111722] rounded-xl border border-gray-200 dark:border-[#232f48] p-6 shadow-sm flex-1">
-                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary">image</span>
-                                Kampanya Görseli
+                            <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">playlist_add_check</span>
+                                Mevcut Kampanyalar
                             </h3>
-                            <div class="w-full h-48 border-2 border-dashed border-gray-300 dark:border-border-dark rounded-xl bg-gray-50 dark:bg-surface-dark flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-gray-100 dark:hover:bg-[#232f48] transition-all group relative overflow-hidden">
-                                <div class="flex flex-col items-center gap-2 group-hover:scale-105 transition-transform z-10">
-                                    <div class="bg-white dark:bg-[#111722] p-3 rounded-full shadow-sm">
-                                        <span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+                            <div class="space-y-3">
+                                {% if kampanyalar and kampanyalar|length > 0 %}
+                                    {% for k in kampanyalar %}
+                                    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-surface-dark rounded-lg border border-gray-200 dark:border-border-dark">
+                                        <div class="shrink-0">
+                                            <span class="material-symbols-outlined text-primary">local_offer</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-semibold text-slate-900 dark:text-white">{{ k.title }}</p>
+                                            <p class="text-xs text-text-secondary">Bitiş: {{ k.ends_at.strftime('%d.%m.%Y %H:%M') if k.ends_at else 'Belirsiz' }}</p>
+                                            {% if k.products and k.products|length > 0 %}
+                                                <p class="text-xs text-text-secondary mt-1">Ürünler:
+                                                    {% for p in k.products %}
+                                                        {{ p.name or ('Ürün #' ~ p.id) }}{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="text-xs text-text-secondary">
+                                                {% if k.percent_discount %}%{{ k.percent_discount }}{% endif %}
+                                            </div>
+                                            <form method="post" action="/admin/kampanyalar/sil" onsubmit="return confirm('Kampanya silinsin mi?');">
+                                                <input type="hidden" name="campaign_id" value="{{ k.id }}" />
+                                                <button type="submit" class="p-1.5 rounded hover:bg-red-600/20 text-red-600 dark:text-red-400" title="Kampanyayı Sil">
+                                                    <span class="material-symbols-outlined">delete</span>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                    <p class="text-slate-700 dark:text-white font-medium text-sm">Görsel Yükle</p>
-                                    <p class="text-text-secondary text-xs px-4 text-center">PNG, JPG (Max. 2MB)</p>
-                                </div>
-                                <div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-                            <div class="mt-4 flex items-center gap-3 p-3 bg-gray-50 dark:bg-surface-dark rounded-lg border border-gray-200 dark:border-border-dark">
-                                <div class="w-12 h-12 rounded bg-cover bg-center shrink-0 bg-gray-200" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDN9PVzuGlQreMs3KBs9bgwjFb-BlRD3ekwoRANFJnJqh1uIdBv77S_gfl8eGsTiV_lQdR1TPCMoFvGqW3Pv7HKp3vpGJV1FLblJN4JhYgsgfwqtkn2Lc2WztZrJUB1P9bI5YUQgthb_C8iwo9qLXPISsKK3niDIxoDYcfbiQVyj1ZNzYIio_aFe3SLbzMzxUFR8oJwIYY9eskOXXe0-EhhmxoBW95qThzxsy0todT1f_39_HXTYNZv-u6LMeCRKScFdbQGQrML0SQ')"></div>
-                                <div class="flex flex-col overflow-hidden w-full">
-                                    <p class="text-sm font-medium text-slate-900 dark:text-white truncate">varsayilan_banner.jpg</p>
-                                    <p class="text-xs text-text-secondary">Varsayılan Görsel</p>
-                                </div>
-                                <input name="image" placeholder="Görsel URL" class="w-full rounded-lg bg-gray-50 dark:bg-surface-dark border border-gray-300 dark:border-border-dark text-slate-900 dark:text-white px-3 py-2 focus:ring-1 focus:ring-primary focus:border-transparent placeholder:text-text-secondary transition-all" />
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-sm text-text-secondary">Henüz kampanya yok.</p>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                     <div class="sticky bottom-4 z-20 bg-[#111722] border border-[#232f48] p-4 rounded-xl shadow-2xl flex items-center justify-between lg:col-span-3">
                         <button type="button" class="px-6 py-3 rounded-lg text-text-secondary hover:text-white hover:bg-surface-dark font-medium transition-colors" onclick="history.back()">Vazgeç</button>
                         <div class="flex gap-4">
-                            <button type="submit" class="flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-blue-600 text-white font-semibold shadow-lg shadow-primary/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                            <button type="submit" form="campaign-form" class="flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-blue-600 text-white font-semibold shadow-lg shadow-primary/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
                                 <span class="material-symbols-outlined">check</span>
-                                Kampanyayı Yayınla
+                                Kampanya Düzenle
                             </button>
                         </div>
                     </div>
                 </form>
+                <script>
+                async function updatePreview() {
+                    const pidInput = document.getElementById('product_id');
+                    const dtype = document.getElementById('discount_type');
+                    const dvalInput = document.getElementById('discount_value');
+                    const pid = parseInt((pidInput?.value || '').trim());
+                    const dtypeVal = (dtype?.value || 'percentage');
+                    const dval = parseFloat((dvalInput?.value || '').trim());
+                    const previewId = 'discount-preview';
+                    let previewEl = document.getElementById(previewId);
+                    if (!previewEl) {
+                        previewEl = document.createElement('div');
+                        previewEl.id = previewId;
+                        previewEl.className = 'mt-3 p-3 rounded-lg border border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-surface-dark text-sm';
+                        const target = document.getElementById('discount_value')?.parentElement?.parentElement;
+                        if (target) target.appendChild(previewEl);
+                    }
+                    if (!pid || !dval || isNaN(dval)) {
+                        previewEl.textContent = 'Önizleme için ürün ID ve indirim değeri giriniz.';
+                        return;
+                    }
+                    try {
+                        const res = await fetch(`/api/product-info?product_id=${pid}`);
+                        const data = await res.json();
+                        if (!data.ok) {
+                            previewEl.textContent = 'Ürün bulunamadı.';
+                            return;
+                        }
+                        const price = parseFloat(data.price || 0);
+                        let discounted = price;
+                        if (dtypeVal === 'percentage') {
+                            discounted = Math.max(0, price - (price * (dval/100)));
+                        } else {
+                            discounted = Math.max(0, price - dval);
+                        }
+                        previewEl.textContent = `Ürün: ${data.name} (₺${price.toFixed(2)}) → İndirimli: ₺${discounted.toFixed(2)}`;
+                    } catch (e) {
+                        previewEl.textContent = 'Önizleme hesaplanamadı.';
+                    }
+                }
+                ['product_id','discount_type','discount_value'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.addEventListener('input', updatePreview);
+                });
+                </script>
             </div>
         </div>
     </main>

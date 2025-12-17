@@ -172,38 +172,15 @@ tailwind.config = {
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-<!-- Featured Campaign Banner -->
-<div class="mb-16 animate-slideInUp stagger-1">
-<div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 h-64 md:h-80 flex items-center shadow-lg bg-cover bg-center" style="background-image: linear-gradient(rgba(37, 99, 235, 0.88), rgba(29, 78, 216, 0.92)), url('https://images.unsplash.com/photo-1593642532400-2682810df593?w=1200&q=80');">
-<div class="relative z-10 px-6 sm:px-10 md:px-16 text-white max-w-2xl">
-<div class="inline-block bg-white/20 backdrop-blur px-4 py-2 rounded-full mb-4">
-<span class="text-sm font-bold">🔥 AYININ FIRSATI</span>
-</div>
-<h2 class="text-3xl md:text-4xl font-bold mb-3">Seçili Ürünlerde Mega İndirim</h2>
-<p class="text-white/90 mb-6 text-lg">Bilgisayar, telefon ve tablet kategorilerinde %40'a varan indirimler seni bekliyor!</p>
-<div class="flex gap-4 flex-wrap">
-<a href="/" class="inline-flex items-center gap-2 bg-white text-blue-600 font-bold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
-Tüm Ürünleri Gör
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
-</a>
-<a href="/?q=telefon" class="inline-flex items-center gap-2 bg-white/20 backdrop-blur text-white font-bold px-6 py-3 rounded-lg border border-white/30 hover:bg-white/30 transition-colors">
-Telefonları İncele
-</a>
-</div>
-</div>
-</div>
-</div>
+<!-- Featured Campaign Banner removed as requested -->
 
 <!-- Active Campaigns -->
 <div class="mb-12">
-<div class="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-8">
-<div>
-<h3 class="text-2xl font-bold">Aktif Kampanyalar</h3>
-<p class="text-sm text-gray-600 dark:text-gray-400 mt-2">24 saatlik indirim sayaçlarını takip edin, süre dolmadan ürünü yakalayın.</p>
-</div>
-<a href="#telefon-urunleri" class="inline-flex items-center gap-2 text-blue-600 font-semibold hover:underline">
-<span class="material-symbols-outlined text-base">south</span>
-Telefon ürünlerine in</a>
+<div class="flex flex-col gap-3 mb-8">
+  <div>
+    <h3 class="text-2xl font-bold">Aktif Kampanyalar</h3>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">24 saatlik indirim sayaçlarını takip edin, süre dolmadan ürünü yakalayın.</p>
+  </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 {% if kampanyalar %}
@@ -211,8 +188,10 @@ Telefon ürünlerine in</a>
 <div class="animate-fadeIn stagger-{{ loop.index }} campaign-card group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
 <!-- Campaign Image -->
 <div class="relative h-48 overflow-hidden bg-gray-200 dark:bg-gray-700">
-<img src="{{ k.image or 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=600&q=80' }}" 
-alt="{{ k.title }}" 
+{% set prod = k.products|first %}
+{% set img_src = (prod.image if prod and prod.image else (k.image if k.image else 'https://images.unsplash.com/photo-1552820728-8ac41f1ce891?w=600&q=80')) %}
+<img src="{{ img_src }}" 
+alt="{{ prod.name if prod and prod.name else k.title }}" 
 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
 {% if k.is_24h %}
 <div class="absolute top-4 left-4 bg-white/20 backdrop-blur text-white font-semibold px-3 py-1 rounded-full flex items-center gap-2">
@@ -262,7 +241,7 @@ class="w-full h-full object-cover group-hover:scale-110 transition-transform dur
 
 <!-- Action Buttons -->
 <div class="flex gap-3">
-<a href="/" class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center flex items-center justify-center gap-2">
+<a href="{{ '/urun/' ~ prod.id if prod else '/' }}" class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors text-center flex items-center justify-center gap-2">
 <span>Alışverişe Başla</span>
 <span class="material-symbols-outlined text-sm">shopping_bag</span>
 </a>
@@ -284,92 +263,11 @@ class="w-full h-full object-cover group-hover:scale-110 transition-transform dur
 </div>
 </div>
 
-<!-- Telefon Ürünleri -->
-<div id="telefon-urunleri" class="mt-16">
-<h3 class="text-2xl font-bold mb-8">Telefon Ürünleri</h3>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-{% if urunler %}
-{% for urun in urunler %}
-<div class="animate-fadeIn campaign-card group rounded-xl overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
-<a href="/urun/{{ urun.id }}" class="block">
-<div class="relative h-64 overflow-hidden bg-gray-200 dark:bg-gray-700">
-<img src="{{ urun.image }}" alt="{{ urun.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
-</div>
-<div class="p-6">
-<h4 class="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors">{{ urun.name }}</h4>
-<p class="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">{{ urun.description }}</p>
-<div class="flex items-center justify-between mt-4">
-<span class="text-2xl font-bold text-blue-600">{{ urun.price }} ₺</span>
-<form method="POST" action="/sepete-ekle" class="inline">
-<input type="hidden" name="urun_id" value="{{ urun.id }}"/>
-<button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
-<span class="material-symbols-outlined text-sm">shopping_cart</span>
-<span>Sepete Ekle</span>
-</button>
-</form>
-</div>
-</div>
-</a>
-</div>
-{% endfor %}
-{% else %}
-<div class="col-span-full text-center py-12">
-<div class="text-gray-400 dark:text-gray-600 text-lg">
-<span class="material-symbols-outlined text-5xl mb-4 block">smartphone</span>
-Telefon ürünü bulunmamaktadır.
-</div>
-</div>
-{% endif %}
-</div>
-</div>
+<!-- Telefon Ürünleri section removed as requested -->
 
-<!-- Quick Links Section -->
-<div class="bg-gray-50 dark:bg-gray-800 rounded-xl p-8 md:p-12 mt-16 animate-slideInUp stagger-5">
-<h3 class="text-2xl font-bold mb-8 text-center">Kategorilere Göz Atın</h3>
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-<a href="/ara?q=telefon" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
-<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">smartphone</span>
-<span class="font-bold text-sm">Telefon</span>
-</a>
-<a href="/ara?q=laptop" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
-<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">laptop</span>
-<span class="font-bold text-sm">Bilgisayar</span>
-</a>
-<a href="/ara?q=tablet" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
-<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">tablet</span>
-<span class="font-bold text-sm">Tablet</span>
-</a>
-<a href="/ara?q=tv" class="group p-6 text-center rounded-lg bg-white dark:bg-gray-700 hover:bg-blue-600 hover:text-white transition-colors shadow-sm hover:shadow-lg">
-<span class="material-symbols-outlined text-4xl block mb-3 mx-auto">tv</span>
-<span class="font-bold text-sm">Televizyon</span>
-</a>
-</div>
-</div>
+<!-- Quick Links removed as requested -->
 
-<!-- Info Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 animate-slideInUp stagger-6">
-<div class="p-6 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-<div class="flex items-center gap-3 mb-3">
-<span class="material-symbols-outlined text-blue-600 text-3xl">flash_on</span>
-<h4 class="font-bold">Hızlı İndirim</h4>
-</div>
-<p class="text-sm text-gray-700 dark:text-gray-300">Seçili ürünlerde anında indirimler uygulanır.</p>
-</div>
-<div class="p-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-<div class="flex items-center gap-3 mb-3">
-<span class="material-symbols-outlined text-green-600 text-3xl">verified</span>
-<h4 class="font-bold">Güvenli Alışveriş</h4>
-</div>
-<p class="text-sm text-gray-700 dark:text-gray-300">100% güvenli ödeme ve kolay iade işlemleri.</p>
-</div>
-<div class="p-6 rounded-lg bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800">
-<div class="flex items-center gap-3 mb-3">
-<span class="material-symbols-outlined text-purple-600 text-3xl">local_shipping</span>
-<h4 class="font-bold">Ücretsiz Kargo</h4>
-</div>
-<p class="text-sm text-gray-700 dark:text-gray-300">250 TL üzerinde tüm siparişlere ücretsiz kargo.</p>
-</div>
-</div>
+<!-- Info Cards removed as requested -->
 
 </div>
 </main>

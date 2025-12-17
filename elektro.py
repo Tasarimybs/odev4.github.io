@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
+import json
 
 
 # -------------------------------------------------------
@@ -50,7 +51,8 @@ def admin_login():
         if ALLOWED_ADMINS.get(email) == password:
             session["admin_logged"] = True
             session["user_name"] = (email.split("@")[0].capitalize())
-            next_url = request.args.get("next")
+            # Önce formdan gelen next'i kullan, yoksa query'den al
+            next_url = request.form.get("next") or request.args.get("next")
             return redirect(next_url or url_for("admin"))
         flash("Geçersiz e-posta veya şifre.")
         return render_template("admingiriş.html")
@@ -182,6 +184,40 @@ def set_sepet(data):
     session["sepet"] = data
 
 
+def _sync_cart_db_from_session(user_id: int):
+    try:
+        if not user_id:
+            return
+        sepet_raw = get_sepet() or []
+        # Aggregate by product id
+        agg = {}
+        for item in sepet_raw:
+            pid = None
+            adet = 1
+            if isinstance(item, int):
+                pid = item
+                adet = 1
+            elif isinstance(item, dict):
+                pid = item.get("id")
+                adet = int(item.get("adet", 1) or 1)
+            if not pid:
+                continue
+            try:
+                pid = int(pid)
+            except Exception:
+                continue
+            agg[pid] = agg.get(pid, 0) + max(1, adet)
+
+        # Replace user's cart snapshot
+        CartItem.query.filter_by(user_id=user_id).delete()
+        now = datetime.now()
+        for pid, qty in agg.items():
+            db.session.add(CartItem(user_id=user_id, product_id=pid, quantity=qty, created_at=now))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
 # -------------------------------------------------------
 # HOME
 @app.route("/")
@@ -196,9 +232,17 @@ def home():
 
 @app.route("/hakkimizda")
 def hakkimizda():
+    about = AboutPage.query.first()
+    about_data = None
+    if about and about.content:
+        try:
+            about_data = json.loads(about.content)
+        except Exception:
+            about_data = None
     return render_template(
         "hakkimizda.html",
-        about=AboutPage.query.first(),
+        about=about,
+        about_data=about_data,
         sepet_urun_sayisi=len(get_sepet())
     )
 
@@ -225,9 +269,18 @@ def ara():
 
 @app.route("/kampanyalar")
 def kampanyalar():
+    now = datetime.now()
+    q = Campaign.query.filter_by(active=True)
+    try:
+        q = q.filter(((Campaign.starts_at == None) | (Campaign.starts_at <= now)))
+        q = q.filter(((Campaign.ends_at == None) | (Campaign.ends_at >= now)))
+    except Exception:
+        # Eğer tarih filtrelemede problem olursa en azından aktifleri göster
+        pass
+    kampanyalar = q.order_by(Campaign.starts_at.desc()).all()
     return render_template(
         "kampanyalar.html",
-        kampanyalar=Campaign.query.filter_by(active=True).all(),
+        kampanyalar=kampanyalar,
         sepet_urun_sayisi=len(get_sepet())
     )
 
@@ -413,6 +466,9 @@ def sepete_ekle():
     if not found:
         sepet.append({"id": urun_id, "adet": 1, "img": (p.image or None)})
     set_sepet(sepet)
+    # Persist to DB for logged-in users
+    if session.get("user_id"):
+        _sync_cart_db_from_session(session.get("user_id"))
     flash("Ürün sepete eklendi", "success")
     # Eklemeden sonra geldiği sayfada kal (bildirim göster)
     return redirect(request.referrer or url_for("home"))
@@ -444,6 +500,8 @@ def api_sepet_arttir():
     if not updated:
         sepet.append({"id": urun_id, "adet": 1, "img": (p.image or None)})
     set_sepet(sepet)
+    if session.get("user_id"):
+        _sync_cart_db_from_session(session.get("user_id"))
     sepet_urunler = _build_sepet_urunler()
     subtotal = sum(u["fiyat"] * u["adet"] for u in sepet_urunler)
     return jsonify({
@@ -468,6 +526,8 @@ def api_sepet_azalt():
             # int ise 1 kabul edilir; azaltınca yine 1'de kalır
             break
     set_sepet(sepet)
+    if session.get("user_id"):
+        _sync_cart_db_from_session(session.get("user_id"))
     sepet_urunler = _build_sepet_urunler()
     subtotal = sum(u["fiyat"] * u["adet"] for u in sepet_urunler)
     return jsonify({
@@ -487,6 +547,8 @@ def sepetten_sil():
         if pid is None or pid != urun_id:
             sepet.append(i if isinstance(i, dict) else {"id": i, "adet": 1})
     set_sepet(sepet)
+    if session.get("user_id"):
+        _sync_cart_db_from_session(session.get("user_id"))
     flash("Ürün sepetten kaldırıldı", "success")
     return redirect(url_for("sepet"))
 
@@ -554,6 +616,8 @@ def login():
         user = User.query.filter_by(email=request.form["email"]).first()
         if user and user.check_password(request.form["password"]):
             session["user_id"] = user.id
+            # Kullanıcının mevcut oturum sepetini veritabanına senkronize et
+            _sync_cart_db_from_session(user.id)
             return redirect(url_for("home"))
         flash("Hatalı giriş", "error")
     return render_template("login.html")
@@ -580,21 +644,61 @@ def admin():
 @app.route("/admin/hakkimizda", methods=["GET"])
 def admin_hakkimizda():
     about = AboutPage.query.first()
-    return render_template("adminhakkimizda.html", about=about)
+    about_data = None
+    if about and about.content:
+        try:
+            about_data = json.loads(about.content)
+        except Exception:
+            about_data = None
+    # Varsayılan içerik (ilk kurulum için)
+    defaults = {
+        "hero_kicker": "Hakkımızda",
+        "hero_title": "Teknoloji Tutkusuyla Güven İnşa Ediyoruz",
+        "hero_body": "Kurulduğumuz günden bu yana, en yeni teknolojileri tutkuyla takip ediyor ve müşterilerimizle buluşturuyoruz. Misyonumuz, en kaliteli elektronik ürünleri erişilebilir fiyatlarla sunmak ve alışverişin her aşamasında güvenilir bir ortak olmaktır. Vizyonumuz, teknolojinin hayatı kolaylaştıran gücünü herkes için bir standart haline getirmektir. Müşteri odaklılık, yenilikçilik ve şeffaflık temel değerlerimizdir.",
+        "trust_title": "Neden Bize Güvenmelisiniz?",
+        "features": [
+            {"icon": "verified_user", "title": "Orijinal Ürün Garantisi", "desc": "%100 orijinal, yetkili distribütör garantisi"},
+            {"icon": "lock", "title": "Güvenli Alışveriş", "desc": "Güncel SSL ve güvenlik protokolleri"},
+            {"icon": "support_agent", "title": "Satış Sonrası Destek", "desc": "Uzman ekibimiz her zaman yanınızda"},
+            {"icon": "local_shipping", "title": "Hızlı ve Sigortalı Kargo", "desc": "Özenli paketleme ve sigortalı teslimat"},
+        ],
+    }
+    merged = about_data or defaults
+    return render_template("adminhakkimizda.html", about=about, about_data=merged)
 
 
 @app.route("/admin/hakkimizda-guncelle", methods=["POST"])
 def admin_hakkimizda_guncelle():
     about = AboutPage.query.first()
+    # Formdan alanları topla
+    hero_kicker = (request.form.get("hero_kicker") or "").strip() or "Hakkımızda"
+    hero_title = (request.form.get("hero_title") or "").strip() or "Teknoloji Tutkusuyla Güven İnşa Ediyoruz"
+    hero_body = (request.form.get("hero_body") or "").strip()
+    trust_title = (request.form.get("trust_title") or "").strip() or "Neden Bize Güvenmelisiniz?"
+
+    features = []
+    for i in range(1, 5):
+        features.append({
+            "icon": (request.form.get(f"f{i}_icon") or "").strip() or ("verified_user" if i == 1 else ""),
+            "title": (request.form.get(f"f{i}_title") or "").strip(),
+            "desc": (request.form.get(f"f{i}_desc") or "").strip(),
+        })
+
+    data = {
+        "hero_kicker": hero_kicker,
+        "hero_title": hero_title,
+        "hero_body": hero_body,
+        "trust_title": trust_title,
+        "features": features,
+        "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
     if not about:
-        about = AboutPage(
-            title=request.form["title"],
-            content=request.form["content"]
-        )
+        about = AboutPage(title=hero_title, content=json.dumps(data, ensure_ascii=False))
         db.session.add(about)
     else:
-        about.title = request.form["title"]
-        about.content = request.form["content"]
+        about.title = hero_title
+        about.content = json.dumps(data, ensure_ascii=False)
 
     db.session.commit()
     flash("Hakkımızda güncellendi", "success")
@@ -826,7 +930,8 @@ def admin_vitrin_sil():
 @app.route("/admin/kampanyalar", methods=["GET"])
 def admin_kampanyalar():
     kategoriler = Category.query.all()
-    return render_template("admin_kampanya_duzenle.html", kategoriler=kategoriler)
+    kampanyalar = Campaign.query.order_by(Campaign.starts_at.desc()).all()
+    return render_template("admin_kampanya_duzenle.html", kategoriler=kategoriler, kampanyalar=kampanyalar)
 
 
 @app.route("/admin/kampanyalar/ekle", methods=["POST"])
@@ -839,6 +944,7 @@ def admin_kampanyalar_ekle():
     starts_at_str = request.form.get("starts_at")
     ends_at_str = request.form.get("ends_at")
     image = request.form.get("image")
+    product_id = request.form.get("product_id", type=int)
 
     if not title:
         flash("Kampanya başlığı gerekli", "error")
@@ -873,9 +979,54 @@ def admin_kampanyalar_ekle():
         active=True
     )
     db.session.add(kamp)
+    # Kampanyalı ürün ilişkilendirme (opsiyonel)
+    if product_id:
+        p = Product.query.get(product_id)
+        if p:
+            kamp.products.append(p)
     db.session.commit()
     flash("Kampanya oluşturuldu", "success")
-    return redirect(url_for("admin"))
+    return redirect(url_for("kampanyalar"))
+
+
+# Basit ürün bilgi API'si (önizleme için)
+@app.route("/api/product-info")
+def api_product_info():
+    pid = request.args.get("product_id", type=int)
+    if not pid:
+        return jsonify({"ok": False, "message": "Geçersiz ürün id"}), 400
+    p = Product.query.get(pid)
+    if not p:
+        return jsonify({"ok": False, "message": "Ürün bulunamadı"}), 404
+    return jsonify({
+        "ok": True,
+        "id": p.id,
+        "name": p.name,
+        "price": p.price,
+        "image": p.image,
+    })
+
+
+@app.route("/admin/kampanyalar/sil", methods=["POST"])
+def admin_kampanyalar_sil():
+    cid = request.form.get("campaign_id", type=int)
+    if not cid:
+        flash("Geçersiz kampanya", "error")
+        return redirect(url_for("admin_kampanyalar"))
+    kamp = Campaign.query.get(cid)
+    if not kamp:
+        flash("Kampanya bulunamadı", "error")
+        return redirect(url_for("admin_kampanyalar"))
+    try:
+        # Ürün ilişkilerini temizle ve kampanyayı sil
+        kamp.products = []
+        db.session.delete(kamp)
+        db.session.commit()
+        flash("Kampanya silindi", "success")
+    except Exception:
+        db.session.rollback()
+        flash("Kampanya silinirken hata oluştu", "error")
+    return redirect(url_for("admin_kampanyalar"))
 
 
 # -------------------------------------------------------

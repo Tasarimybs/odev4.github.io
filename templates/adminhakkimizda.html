@@ -135,65 +135,72 @@
 <p class="text-slate-500 dark:text-text-secondary text-sm md:text-base">Müşterilerinizin göreceği kurumsal metni buradan güncelleyebilirsiniz.</p>
 </div>
 <form method="post" action="/admin/hakkimizda-guncelle">
-<div class="flex flex-col rounded-xl border border-gray-200 dark:border-border-dark bg-white dark:bg-surface-dark shadow-sm overflow-hidden">
-<div class="flex items-center gap-1 p-2 border-b border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1f2b42] overflow-x-auto">
-<!-- Format butonları sadece görsel, işlevsiz -->
-<div class="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-border-dark">
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Bold">
-<span class="material-symbols-outlined text-[20px]">format_bold</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Italic">
-<span class="material-symbols-outlined text-[20px]">format_italic</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Underline">
-<span class="material-symbols-outlined text-[20px]">format_underlined</span>
-</button>
-</div>
-<div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-border-dark">
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Left">
-<span class="material-symbols-outlined text-[20px]">format_align_left</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Center">
-<span class="material-symbols-outlined text-[20px]">format_align_center</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Align Right">
-<span class="material-symbols-outlined text-[20px]">format_align_right</span>
-</button>
-</div>
-<div class="flex items-center gap-1 px-2 border-r border-gray-200 dark:border-border-dark">
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Bullet List">
-<span class="material-symbols-outlined text-[20px]">format_list_bulleted</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Numbered List">
-<span class="material-symbols-outlined text-[20px]">format_list_numbered</span>
-</button>
-</div>
-<div class="flex items-center gap-1 pl-2">
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Insert Link">
-<span class="material-symbols-outlined text-[20px]">link</span>
-</button>
-<button type="button" class="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-border-dark text-slate-600 dark:text-text-secondary transition-colors" title="Insert Image">
-<span class="material-symbols-outlined text-[20px]">image</span>
-</button>
-</div>
-</div>
-<div class="p-4 bg-white dark:bg-surface-dark">
-<label class="sr-only">Sayfa İçeriği</label>
-<textarea name="content" class="w-full min-h-[400px] resize-y bg-transparent text-slate-800 dark:text-gray-200 placeholder-slate-400 dark:placeholder-text-secondary border-0 focus:ring-0 p-2 text-base font-normal leading-relaxed" placeholder="Buraya yazmaya başlayın...">{{ about.content if about else '' }}</textarea>
-</div>
-<div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1f2b42]">
-<p class="text-xs text-slate-500 dark:text-text-secondary">
-                                Son güncelleme: <span class="font-medium text-slate-700 dark:text-gray-300">{{ about.updated_at.strftime('%d.%m.%Y %H:%M') if about and about.updated_at else '' }}</span>
-</p>
-<div class="flex gap-3 w-full sm:w-auto">
-<a href="/admin" class="flex-1 sm:flex-none h-10 px-6 rounded-lg border border-gray-300 dark:border-gray-600 text-slate-700 dark:text-white font-medium text-sm hover:bg-gray-100 dark:hover:bg-border-dark transition-colors text-center flex items-center justify-center">Vazgeç</a>
-<button class="flex-1 sm:flex-none h-10 px-6 rounded-lg bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2" type="submit">
-<span class="material-symbols-outlined text-[18px]">save</span>
-                                    Güncelle
-                                </button>
-</div>
-</div>
-</div>
+    <div class="flex flex-col rounded-xl border border-gray-200 dark:border-border-dark bg-white dark:bg-surface-dark shadow-sm overflow-hidden">
+        <div class="p-4 grid grid-cols-1 gap-6">
+            <div>
+                <h3 class="text-lg font-semibold mb-3">Üst Kısım (Hero)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="flex flex-col gap-1">
+                        <span class="text-sm">Üst Başlık (Küçük)</span>
+                        <input name="hero_kicker" value="{{ about_data.hero_kicker if about_data else '' }}" class="form-input rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="Hakkımızda"/>
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-sm">Başlık</span>
+                        <input name="hero_title" value="{{ about_data.hero_title if about_data else '' }}" class="form-input rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="Teknoloji Tutkusuyla Güven İnşa Ediyoruz"/>
+                    </label>
+                </div>
+                <label class="flex flex-col gap-1 mt-4">
+                    <span class="text-sm">Açıklama</span>
+                    <textarea name="hero_body" rows="4" class="w-full rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2">{{ about_data.hero_body if about_data else '' }}</textarea>
+                </label>
+            </div>
+
+            <div class="h-px bg-gray-200 dark:bg-border-dark"></div>
+
+            <div>
+                <h3 class="text-lg font-semibold mb-3">Alt Kısım (Güven Nedenleri)</h3>
+                <label class="flex flex-col gap-1 mb-3">
+                    <span class="text-sm">Bölüm Başlığı</span>
+                    <input name="trust_title" value="{{ about_data.trust_title if about_data else '' }}" class="form-input rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="Neden Bize Güvenmelisiniz?"/>
+                </label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for i in [1,2,3,4] %}
+                    {% set f = about_data.features[i-1] if about_data and about_data.features and about_data.features|length >= i else None %}
+                    <div class="rounded-lg border border-gray-200 dark:border-border-dark p-3">
+                        <h4 class="font-medium mb-2">Öğe {{ i }}</h4>
+                        <div class="grid grid-cols-1 gap-3">
+                            <label class="flex flex-col gap-1">
+                                <span class="text-sm">İkon (Material Symbols adı)</span>
+                                <input name="f{{ i }}_icon" value="{{ f.icon if f else '' }}" class="form-input rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="verified_user / lock / support_agent / local_shipping"/>
+                            </label>
+                            <label class="flex flex-col gap-1">
+                                <span class="text-sm">Başlık</span>
+                                <input name="f{{ i }}_title" value="{{ f.title if f else '' }}" class="form-input rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="Öğe başlığı"/>
+                            </label>
+                            <label class="flex flex-col gap-1">
+                                <span class="text-sm">Açıklama</span>
+                                <textarea name="f{{ i }}_desc" rows="3" class="w-full rounded-lg border border-gray-300 dark:border-border-dark bg-white dark:bg-[#141b2a] px-3 py-2" placeholder="Kısa açıklama">{{ f.desc if f else '' }}</textarea>
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-gray-200 dark:border-border-dark bg-gray-50 dark:bg-[#1f2b42]">
+            <p class="text-xs text-slate-500 dark:text-text-secondary">
+                Son güncelleme: <span class="font-medium text-slate-700 dark:text-gray-300">{{ about_data.updated_at if about_data and about_data.updated_at else '' }}</span>
+            </p>
+            <div class="flex gap-3 w-full sm:w-auto">
+                <a href="/admin" class="flex-1 sm:flex-none h-10 px-6 rounded-lg border border-gray-300 dark:border-gray-600 text-slate-700 dark:text-white font-medium text-sm hover:bg-gray-100 dark:hover:bg-border-dark transition-colors text-center flex items-center justify-center">Vazgeç</a>
+                <button class="flex-1 sm:flex-none h-10 px-6 rounded-lg bg-primary hover:bg-blue-600 text-white font-bold text-sm shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2" type="submit">
+                    <span class="material-symbols-outlined text-[18px]">save</span>
+                    Güncelle
+                </button>
+            </div>
+        </div>
+    </div>
 </form>
 <!-- Alt ipucu kutucukları kaldırıldı -->
 </div>
