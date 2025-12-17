@@ -1,0 +1,37 @@
+/* Global responsive enhancements without changing layout structure */
+/* Images and media scale with container */
+img, video, canvas, svg { max-width: 100%; height: auto; }
+
+/* Typography scaling */
+html { font-size: 16px; }
+@media (max-width: 1024px) { html { font-size: 15px; } }
+@media (max-width: 768px) { html { font-size: 14px; } }
+@media (max-width: 640px) { html { font-size: 13.5px; } }
+
+/* Section paddings for small screens */
+@media (max-width: 768px) {
+  .py-16 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+  .py-12 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+  .px-8  { padding-left: 1.25rem !important; padding-right: 1.25rem !important; }
+}
+
+/* Grid gaps tighten on mobile for dense layouts */
+@media (max-width: 768px) {
+  .gap-8 { gap: 1.25rem !important; }
+  .gap-6 { gap: 1rem !important; }
+}
+
+/* Ensure sticky footers/bars remain visible on mobile */
+@media (max-width: 768px) {
+  .sticky.bottom-4 { bottom: 0.5rem !important; }
+}
+
+/* Cards get slightly taller visuals on tablets */
+@media (min-width: 640px) and (max-width: 1024px) {
+  .campaign-card .h-48 { height: 14rem !important; }
+}
+
+/* Tables and wide containers can scroll on small screens */
+@media (max-width: 640px) {
+  .overflow-x-auto, .table-responsive { -webkit-overflow-scrolling: touch; }
+}

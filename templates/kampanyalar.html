@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}"/>
 <script>
 tailwind.config = {
   darkMode: 'class',
@@ -149,10 +150,22 @@ tailwind.config = {
 <span class="material-symbols-outlined text-xl">shopping_cart</span>
 <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">{{ sepet_urun_sayisi }}</span>
 </a>
+<button id="mobileMenuBtn" class="lg:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10" aria-label="Menü">
+  <span class="material-symbols-outlined">menu</span>
+</button>
 </div>
 </div>
 </div>
 </header>
+<!-- Mobile menu -->
+<div id="mobileMenu" class="lg:hidden hidden border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col gap-3">
+    <a class="text-sm font-medium hover:text-blue-600 transition-colors" href="/">Ana Sayfa</a>
+    <a class="text-sm font-medium hover:text-blue-600 transition-colors" href="/hakkimizda">Hakkımızda</a>
+    <a class="text-sm font-medium hover:text-blue-600 transition-colors" href="/iletisim">İletişim</a>
+    <a class="text-sm font-medium hover:text-blue-600 transition-colors" href="/sepet">Sepet</a>
+  </nav>
+</div>
 
 <main class="flex-1">
 <!-- Breadcrumb & Title -->
@@ -302,6 +315,12 @@ class="w-full h-full object-cover group-hover:scale-110 transition-transform dur
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const mobileBtn = document.getElementById('mobileMenuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (mobileBtn && mobileMenu) {
+    mobileBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+  }
+
   const timers = document.querySelectorAll('.countdown');
 
   timers.forEach((el) => {

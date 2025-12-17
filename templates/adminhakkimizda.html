@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -97,7 +98,7 @@
 <div class="flex flex-1 flex-col h-full overflow-hidden relative">
 <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-border-dark bg-white dark:bg-background-dark px-6 py-3 md:px-10 z-10">
 <div class="flex items-center gap-4">
-<button class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-white">
+<button id="adminMobileMenuBtn" class="lg:hidden p-2 -ml-2 text-slate-500 dark:text-white" aria-label="Menü">
 <span class="material-symbols-outlined">menu</span>
 </button>
 <a class="flex items-center justify-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors" href="/admin">
@@ -118,6 +119,18 @@
 </div>
 </div>
 </header>
+<!-- Admin mobile menu -->
+<div id="adminMobileMenu" class="lg:hidden hidden border-b border-border-dark bg-white dark:bg-background-dark">
+    <nav class="px-4 py-3 flex flex-col gap-2">
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin"><span class="material-symbols-outlined">home</span>Ana Sayfa</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin/hakkimizda"><span class="material-symbols-outlined">info</span>Hakkımızda</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin/mesajlar"><span class="material-symbols-outlined">contact_mail</span>İletişim</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin/sepetler"><span class="material-symbols-outlined">shopping_cart</span>Sepet</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin/profiller"><span class="material-symbols-outlined">people</span>Profiller</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/admin/kampanyalar"><span class="material-symbols-outlined">campaign</span>Kampanyalar</a>
+        <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-text-secondary hover:text-primary" href="/logout"><span class="material-symbols-outlined">logout</span>Çıkış Yap</a>
+    </nav>
+ </div>
 <main class="flex-1 overflow-y-auto p-4 md:p-8 lg:px-12 bg-gray-50 dark:bg-background-dark">
 <div class="max-w-[1024px] mx-auto flex flex-col gap-6">
 <div class="flex flex-wrap items-center gap-2 text-sm">
@@ -207,4 +220,11 @@
 </main>
 </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('adminMobileMenuBtn');
+    const menu = document.getElementById('adminMobileMenu');
+    if (btn && menu) btn.addEventListener('click', ()=> menu.classList.toggle('hidden'));
+});
+</script>
 </body></html>

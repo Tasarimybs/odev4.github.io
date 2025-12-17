@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
@@ -83,6 +84,27 @@
 
     <!-- Main -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        <div class="md:hidden flex items-center justify-between p-4 bg-[#111722] border-b border-[#232f48] text-white">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">bolt</span>
+                <span class="font-bold">TechStore</span>
+            </div>
+            <button id="adminMobileMenuBtn" class="text-white" aria-label="Menü">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+        </div>
+        <!-- Admin mobile menu -->
+        <div id="adminMobileMenu" class="md:hidden hidden border-b border-[#232f48] bg-[#111722]">
+            <nav class="px-4 py-3 flex flex-col gap-2">
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin"><span class="material-symbols-outlined">home</span>Ana Sayfa</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin/hakkimizda"><span class="material-symbols-outlined">info</span>Hakkımızda</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin/mesajlar"><span class="material-symbols-outlined">contact_mail</span>İletişim</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin/sepetler"><span class="material-symbols-outlined">shopping_cart</span>Sepet</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin/profiller"><span class="material-symbols-outlined">people</span>Profiller</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/admin/kampanyalar"><span class="material-symbols-outlined">campaign</span>Kampanyalar</a>
+                <a class="flex items-center gap-2 text-sm text-[#92a4c9] hover:text-white" href="/logout"><span class="material-symbols-outlined">logout</span>Çıkış Yap</a>
+            </nav>
+        </div>
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
             <div class="max-w-[1200px] mx-auto flex flex-col gap-6">
                 <div class="flex flex-wrap gap-2 items-center">
@@ -226,4 +248,11 @@
     </main>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    const btn = document.getElementById('adminMobileMenuBtn');
+    const menu = document.getElementById('adminMobileMenu');
+    if (btn && menu) btn.addEventListener('click', ()=> menu.classList.toggle('hidden'));
+});
+</script>
 </body></html>
